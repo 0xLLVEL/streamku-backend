@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Data\Requests\StoreWatchHistoryData;
+use App\Http\Controllers\Controller;
+use App\Models\Episode;
+use App\Models\Movie;
+use Illuminate\Http\JsonResponse;
+
+class WatchHistoryController extends Controller
+{
+    public function index(): JsonResponse
+    {
+        $history = request()->user()
+            ->watchHistories()
+            ->with('watchable')
+            ->latest('last_watched_at')
+            ->paginate(20);
+
+        return response()->json($history);
+    }
+
+    public function store(StoreWatchHistoryData $data): JsonResponse
+    {
+        $morphType = match ($data->watchable_type) {
+            'movie' => Movie::class,
+            'episode' => Episode::class,
+            default => null,
+        };
+
+        if (! $morphType) {
+            return response()->json(['message' => 'Invalid watchable type.'], 422);
+        }
+
+        $history = request()->user()->watchHistories()->updateOrCreate(
+            [
+                'watchable_id' => $data->watchable_id,
+                'watchable_type' => $morphType,
+            ],
+            [
+                'progress_seconds' => $data->progress_seconds,
+                'duration_seconds' => $data->duration_seconds,
+                'completed' => $data->completed,
+                'last_watched_at' => now(),
+            ]
+        );
+
+        return response()->json(['data' => $history]);
+    }
+
+    public function continueWatching(): JsonResponse
+    {
+        $items = request()->user()
+            ->watchHistories()
+            ->with('watchable')
+            ->where('completed', false)
+            ->where('progress_seconds', '>', 0)
+            ->latest('last_watched_at')
+            ->limit(20)
+            ->get();
+
+        return response()->json(['data' => $items]);
+    }
+}

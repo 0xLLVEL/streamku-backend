@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use App\Models\Episode;
+use App\Models\Season;
+use App\Models\TvShow;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class TvShowController extends Controller
+{
+    public function index(Request $request): JsonResponse
+    {
+        $query = TvShow::with('genres');
+
+        if ($request->filled('genre')) {
+            $query->whereHas('genres', fn ($q) => $q->where('slug', $request->input('genre')));
+        }
+
+        if ($request->filled('year')) {
+            $query->whereYear('first_air_date', $request->input('year'));
+        }
+
+        $sortField = match ($request->input('sort')) {
+            'name' => 'name',
+            'rating' => 'vote_average',
+            'first_air_date' => 'first_air_date',
+            'created_at' => 'created_at',
+            default => 'popularity',
+        };
+
+        $query->orderByDesc($sortField);
+
+        return response()->json($query->paginate($request->integer('per_page', 20)));
+    }
+
+    public function show(TvShow $tvShow): JsonResponse
+    {
+        $tvShow->load(['genres', 'cast', 'videos', 'seasons']);
+
+        return response()->json(['data' => $tvShow]);
+    }
+
+    public function season(TvShow $tvShow, Season $season): JsonResponse
+    {
+        $season->load('episodes');
+
+        return response()->json(['data' => $season]);
+    }
+
+    public function episode(TvShow $tvShow, Season $season, Episode $episode): JsonResponse
+    {
+        return response()->json(['data' => $episode]);
+    }
+}
