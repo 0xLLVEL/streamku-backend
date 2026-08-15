@@ -35,10 +35,10 @@ class MovieController extends Controller
 
             $query->orderByDesc($sortField);
 
-            return $query->paginate($request->integer('per_page', 20));
+            return $query->paginate($request->integer('per_page', 20))->toArray();
         });
 
-        return $this->success($movies->toArray());
+        return $this->success($movies);
     }
 
     public function show(Movie $movie): JsonResponse

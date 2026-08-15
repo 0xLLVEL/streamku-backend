@@ -43,8 +43,8 @@ Route::prefix('v1')->group(function () {
         // TV Shows
         Route::get('/tv-shows', [TvShowController::class, 'index'])->name('tv-shows.index');
         Route::get('/tv-shows/{tvShow:slug}', [TvShowController::class, 'show'])->name('tv-shows.show');
-        Route::get('/tv-shows/{tvShow:slug}/seasons/{season:season_number}', [TvShowController::class, 'season'])->name('tv-shows.seasons.show');
-        Route::get('/tv-shows/{tvShow:slug}/seasons/{season:season_number}/episodes/{episode:episode_number}', [TvShowController::class, 'episode'])->name('tv-shows.seasons.episodes.show');
+        Route::get('/tv-shows/{tvShow:slug}/seasons/{season_number}', [TvShowController::class, 'season'])->name('tv-shows.seasons.show');
+        Route::get('/tv-shows/{tvShow:slug}/seasons/{season_number}/episodes/{episode_number}', [TvShowController::class, 'episode'])->name('tv-shows.seasons.episodes.show');
 
         // Genres
         Route::get('/genres', [GenreController::class, 'index'])->name('genres.index');

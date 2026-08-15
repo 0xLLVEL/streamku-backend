@@ -38,20 +38,23 @@ class TvShowController extends Controller
 
     public function show(TvShow $tvShow): JsonResponse
     {
-        $tvShow->load(['genres', 'cast', 'videos', 'seasons']);
+        $tvShow->load(['genres', 'cast', 'videos', 'seasons.episodes']);
 
         return $this->success(\App\Data\TvShowData::from($tvShow));
     }
 
-    public function season(TvShow $tvShow, Season $season): JsonResponse
+    public function season(TvShow $tvShow, int $season_number): JsonResponse
     {
-        $season->load('episodes');
+        $season = $tvShow->seasons()->where('season_number', $season_number)->with('episodes')->firstOrFail();
 
         return $this->success(\App\Data\SeasonData::from($season));
     }
 
-    public function episode(TvShow $tvShow, Season $season, Episode $episode): JsonResponse
+    public function episode(TvShow $tvShow, int $season_number, int $episode_number): JsonResponse
     {
+        $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
+        $episode = $season->episodes()->where('episode_number', $episode_number)->firstOrFail();
+
         return $this->success(\App\Data\EpisodeData::from($episode));
     }
 }
