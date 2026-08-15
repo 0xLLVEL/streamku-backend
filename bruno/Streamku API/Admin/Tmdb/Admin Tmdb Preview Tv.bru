@@ -1,0 +1,15 @@
+meta {
+  name: Admin Tmdb Preview Tv
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/admin/tmdb/tv/{tmdbId}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

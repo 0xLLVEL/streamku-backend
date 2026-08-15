@@ -1,0 +1,15 @@
+meta {
+  name: Admin Movies Cast Store
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/admin/movies/{movie}/cast
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

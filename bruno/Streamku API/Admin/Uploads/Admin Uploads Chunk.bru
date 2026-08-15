@@ -1,0 +1,15 @@
+meta {
+  name: Admin Uploads Chunk
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/admin/uploads/{upload:upload_id}/chunks
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

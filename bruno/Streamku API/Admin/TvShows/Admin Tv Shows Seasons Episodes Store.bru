@@ -1,0 +1,15 @@
+meta {
+  name: Admin Tv Shows Seasons Episodes Store
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/admin/tv-shows/{tvShow}/seasons/{season}/episodes
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

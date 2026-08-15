@@ -1,0 +1,15 @@
+meta {
+  name: Admin Movies Show
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/admin/movies/{movie}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Reviews For Title
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/reviews/{type}/{id}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

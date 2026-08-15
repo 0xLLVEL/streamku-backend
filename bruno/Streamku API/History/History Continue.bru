@@ -1,0 +1,15 @@
+meta {
+  name: History Continue
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/history/continue-watching
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

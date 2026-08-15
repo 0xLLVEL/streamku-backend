@@ -1,0 +1,15 @@
+meta {
+  name: Admin Tv Shows Cast Store
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/admin/tv-shows/{tvShow}/cast
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

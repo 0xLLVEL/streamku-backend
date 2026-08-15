@@ -1,0 +1,15 @@
+meta {
+  name: Admin Qualities Index
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/admin/qualities
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

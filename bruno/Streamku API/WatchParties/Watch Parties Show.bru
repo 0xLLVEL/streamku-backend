@@ -1,0 +1,15 @@
+meta {
+  name: Watch Parties Show
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/watch-parties/{watchParty}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

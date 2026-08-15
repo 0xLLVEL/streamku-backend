@@ -1,0 +1,15 @@
+meta {
+  name: Admin Genres Destroy
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{base_url}}/api/v1/admin/genres/{genre}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

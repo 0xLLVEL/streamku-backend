@@ -1,0 +1,15 @@
+meta {
+  name: Admin Tv Shows Feature
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{base_url}}/api/v1/admin/tv-shows/{tvShow}/feature
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

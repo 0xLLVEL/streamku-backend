@@ -1,0 +1,15 @@
+meta {
+  name: Genres Index
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/genres
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

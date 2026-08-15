@@ -1,0 +1,15 @@
+meta {
+  name: Admin Media Destroy
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{base_url}}/api/v1/admin/media/{media}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

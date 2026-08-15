@@ -1,0 +1,15 @@
+meta {
+  name: Admin Uploads Status
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/admin/uploads/{upload:upload_id}/status
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

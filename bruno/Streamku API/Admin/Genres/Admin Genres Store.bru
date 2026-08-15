@@ -1,0 +1,15 @@
+meta {
+  name: Admin Genres Store
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/admin/genres
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

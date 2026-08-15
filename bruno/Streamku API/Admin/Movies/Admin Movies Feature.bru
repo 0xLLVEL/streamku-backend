@@ -1,0 +1,15 @@
+meta {
+  name: Admin Movies Feature
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{base_url}}/api/v1/admin/movies/{movie}/feature
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Admin Movies Cast Update
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{base_url}}/api/v1/admin/movies/{movie}/cast/{cast}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

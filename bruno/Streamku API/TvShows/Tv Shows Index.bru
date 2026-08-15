@@ -1,0 +1,15 @@
+meta {
+  name: Tv Shows Index
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/tv-shows
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

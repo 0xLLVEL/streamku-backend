@@ -1,0 +1,15 @@
+meta {
+  name: Movies Index
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/movies
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}
