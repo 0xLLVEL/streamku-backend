@@ -12,27 +12,31 @@ class MovieController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Movie::with('genres');
+        $cacheKey = 'movies_index_' . md5(json_encode($request->all()));
 
-        if ($request->filled('genre')) {
-            $query->whereHas('genres', fn ($q) => $q->where('slug', $request->input('genre')));
-        }
+        $movies = \Illuminate\Support\Facades\Cache::remember($cacheKey, now()->addMinutes(30), function () use ($request) {
+            $query = Movie::with('genres');
 
-        if ($request->filled('year')) {
-            $query->whereYear('release_date', $request->input('year'));
-        }
+            if ($request->filled('genre')) {
+                $query->whereHas('genres', fn ($q) => $q->where('slug', $request->input('genre')));
+            }
 
-        $sortField = match ($request->input('sort')) {
-            'title' => 'title',
-            'rating' => 'vote_average',
-            'release_date' => 'release_date',
-            'created_at' => 'created_at',
-            default => 'popularity',
-        };
+            if ($request->filled('year')) {
+                $query->whereYear('release_date', $request->input('year'));
+            }
 
-        $query->orderByDesc($sortField);
+            $sortField = match ($request->input('sort')) {
+                'title' => 'title',
+                'rating' => 'vote_average',
+                'release_date' => 'release_date',
+                'created_at' => 'created_at',
+                default => 'popularity',
+            };
 
-        $movies = $query->paginate($request->integer('per_page', 20));
+            $query->orderByDesc($sortField);
+
+            return $query->paginate($request->integer('per_page', 20));
+        });
 
         return response()->json($movies);
     }
