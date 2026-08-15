@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BrowseController;
 use App\Http\Controllers\Api\V1\GenreController;
+use App\Http\Controllers\Api\V1\MediaStreamController;
 use App\Http\Controllers\Api\V1\MovieController;
 use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\TvShowController;
@@ -65,6 +66,11 @@ Route::prefix('v1')->group(function () {
         Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
         Route::get('/reviews/{type}/{id}', [ReviewController::class, 'forTitle'])->name('reviews.for-title');
 
+        // Media & Streaming
+        Route::get('/movies/{movie:slug}/media', [MediaStreamController::class, 'movieMedia'])->name('movies.media');
+        Route::get('/tv-shows/{tvShow:slug}/seasons/{season:season_number}/episodes/{episode:episode_number}/media', [MediaStreamController::class, 'episodeMedia'])->name('episodes.media');
+        Route::get('/media/{media}/stream', [MediaStreamController::class, 'stream'])->name('media.stream');
+
         // ── Admin ───────────────────────────────────────────
         Route::prefix('admin')->middleware(EnsureUserIsAdmin::class)->group(function () {
 
@@ -92,6 +98,23 @@ Route::prefix('v1')->group(function () {
 
             // Admin Episodes
             Route::apiResource('tv-shows.seasons.episodes', Admin\EpisodeController::class)->names('admin.tv-shows.seasons.episodes')->parameters(['tv-shows' => 'tvShow']);
+
+            // Uploads (Chunked)
+            Route::get('/uploads', [Admin\UploadController::class, 'index'])->name('admin.uploads.index');
+            Route::post('/uploads/initiate', [Admin\UploadController::class, 'initiate'])->name('admin.uploads.initiate');
+            Route::post('/uploads/{upload:upload_id}/chunks', [Admin\UploadController::class, 'chunk'])->name('admin.uploads.chunk');
+            Route::get('/uploads/{upload:upload_id}/status', [Admin\UploadController::class, 'status'])->name('admin.uploads.status');
+            Route::post('/uploads/{upload:upload_id}/complete', [Admin\UploadController::class, 'complete'])->name('admin.uploads.complete');
+            Route::delete('/uploads/{upload:upload_id}', [Admin\UploadController::class, 'cancel'])->name('admin.uploads.cancel');
+
+            // Qualities
+            Route::apiResource('qualities', Admin\QualityController::class)->names('admin.qualities');
+
+            // Media Management
+            Route::get('/movies/{movie}/media', [Admin\MediaController::class, 'movieMedia'])->name('admin.movies.media');
+            Route::get('/tv-shows/{tvShow}/seasons/{season}/episodes/{episode}/media', [Admin\MediaController::class, 'episodeMedia'])->name('admin.episodes.media');
+            Route::delete('/media/{media}', [Admin\MediaController::class, 'destroy'])->name('admin.media.destroy');
+            Route::patch('/media/{media}/primary', [Admin\MediaController::class, 'setPrimary'])->name('admin.media.primary');
 
             // TMDB Search & Import
             Route::prefix('tmdb')->group(function () {

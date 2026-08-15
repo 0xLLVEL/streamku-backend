@@ -23,7 +23,7 @@ class TmdbImportService
             ['tmdb_id' => $tmdbId],
             [
                 'title' => $data['title'],
-                'slug' => Str::slug($data['title'] . '-' . $tmdbId),
+                'slug' => Str::slug($data['title'].'-'.$tmdbId),
                 'overview' => $data['overview'] ?? null,
                 'tagline' => $data['tagline'] ?? null,
                 'poster_path' => $data['poster_path'] ?? null,
@@ -53,7 +53,7 @@ class TmdbImportService
             ['tmdb_id' => $tmdbId],
             [
                 'name' => $data['name'],
-                'slug' => Str::slug($data['name'] . '-' . $tmdbId),
+                'slug' => Str::slug($data['name'].'-'.$tmdbId),
                 'overview' => $data['overview'] ?? null,
                 'tagline' => $data['tagline'] ?? null,
                 'poster_path' => $data['poster_path'] ?? null,

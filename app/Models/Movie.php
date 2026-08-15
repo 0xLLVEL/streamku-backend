@@ -72,4 +72,12 @@ class Movie extends Model
     {
         return $this->morphMany(Watchlist::class, 'watchlistable');
     }
+
+    /**
+     * @return MorphMany<Media, $this>
+     */
+    public function media(): MorphMany
+    {
+        return $this->morphMany(Media::class, 'mediable');
+    }
 }
