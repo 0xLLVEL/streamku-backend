@@ -13,9 +13,7 @@ class GenreController extends Controller
     {
         $genres = Genre::orderBy('name')->get();
 
-        return response()->json([
-            'data' => GenreData::collect($genres),
-        ]);
+        return $this->success(GenreData::collect($genres));
     }
 
     public function show(Genre $genre): JsonResponse
@@ -23,8 +21,8 @@ class GenreController extends Controller
         $movies = $genre->movies()->with('genres')->orderByDesc('popularity')->limit(20)->get();
         $tvShows = $genre->tvShows()->with('genres')->orderByDesc('popularity')->limit(20)->get();
 
-        return response()->json([
-            'data' => GenreData::from($genre),
+        return $this->success([
+            'genre' => GenreData::from($genre),
             'movies' => $movies,
             'tv_shows' => $tvShows,
         ]);

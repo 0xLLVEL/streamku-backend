@@ -24,10 +24,10 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
-        return response()->json([
+        return $this->success([
             'user' => UserData::from($user),
             'token' => $token,
-        ], 201);
+        ], null, 201);
     }
 
     public function login(LoginData $data): JsonResponse
@@ -42,7 +42,7 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
-        return response()->json([
+        return $this->success([
             'user' => UserData::from($user),
             'token' => $token,
         ]);
@@ -52,12 +52,12 @@ class AuthController extends Controller
     {
         request()->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Logged out successfully.']);
+        return $this->success(null, 'Logged out successfully.');
     }
 
     public function me(): JsonResponse
     {
-        return response()->json([
+        return $this->success([
             'user' => UserData::from(request()->user()),
         ]);
     }

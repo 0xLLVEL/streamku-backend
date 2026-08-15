@@ -24,21 +24,21 @@ class SeasonController extends Controller
 
         $tvShow->update(['number_of_seasons' => $tvShow->seasons()->count()]);
 
-        return response()->json(['data' => $season], 201);
+        return $this->success($season, null, 201);
     }
 
     public function show(TvShow $tvShow, Season $season): JsonResponse
     {
         $season->load('episodes');
 
-        return response()->json(['data' => $season]);
+        return $this->success($season);
     }
 
     public function update(UpdateSeasonData $data, TvShow $tvShow, Season $season): JsonResponse
     {
         $season->update(array_filter($data->toArray(), fn ($v) => $v !== null));
 
-        return response()->json(['data' => $season->fresh()]);
+        return $this->success($season->fresh());
     }
 
     public function destroy(TvShow $tvShow, Season $season): JsonResponse
@@ -47,6 +47,6 @@ class SeasonController extends Controller
 
         $tvShow->update(['number_of_seasons' => $tvShow->seasons()->count()]);
 
-        return response()->json(['message' => 'Season deleted.']);
+        return $this->success(null, 'Season deleted.');
     }
 }

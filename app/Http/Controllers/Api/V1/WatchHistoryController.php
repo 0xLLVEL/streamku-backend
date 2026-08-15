@@ -18,7 +18,7 @@ class WatchHistoryController extends Controller
             ->latest('last_watched_at')
             ->paginate(20);
 
-        return response()->json($history);
+        return $this->success($history->toArray());
     }
 
     public function store(StoreWatchHistoryData $data): JsonResponse
@@ -30,7 +30,7 @@ class WatchHistoryController extends Controller
         };
 
         if (! $morphType) {
-            return response()->json(['message' => 'Invalid watchable type.'], 422);
+            return $this->error('Invalid watchable type.', 422);
         }
 
         $history = request()->user()->watchHistories()->updateOrCreate(
@@ -46,7 +46,7 @@ class WatchHistoryController extends Controller
             ]
         );
 
-        return response()->json(['data' => $history]);
+        return $this->success($history);
     }
 
     public function continueWatching(): JsonResponse
@@ -60,6 +60,6 @@ class WatchHistoryController extends Controller
             ->limit(20)
             ->get();
 
-        return response()->json(['data' => $items]);
+        return $this->success($items);
     }
 }

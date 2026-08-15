@@ -16,14 +16,14 @@ class MediaController extends Controller
     {
         $media = $movie->media()->with('quality')->get();
 
-        return response()->json(['data' => $media]);
+        return $this->success($media);
     }
 
     public function episodeMedia(TvShow $tvShow, Season $season, Episode $episode): JsonResponse
     {
         $media = $episode->media()->with('quality')->get();
 
-        return response()->json(['data' => $media]);
+        return $this->success($media);
     }
 
     public function destroy(Media $media): JsonResponse
@@ -31,7 +31,7 @@ class MediaController extends Controller
         $media->deleteFile();
         $media->delete();
 
-        return response()->json(['message' => 'Media deleted.']);
+        return $this->success(null, 'Media deleted.');
     }
 
     public function setPrimary(Media $media): JsonResponse

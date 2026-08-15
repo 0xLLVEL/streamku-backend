@@ -12,27 +12,27 @@ class MovieVideoController extends Controller
 {
     public function index(Movie $movie): JsonResponse
     {
-        return response()->json(['data' => $movie->videos]);
+        return $this->success($movie->videos);
     }
 
     public function store(StoreVideoData $data, Movie $movie): JsonResponse
     {
         $video = $movie->videos()->create($data->toArray());
 
-        return response()->json(['data' => $video], 201);
+        return $this->success($video, null, 201);
     }
 
     public function update(StoreVideoData $data, Movie $movie, Video $video): JsonResponse
     {
         $video->update(array_filter($data->toArray(), fn ($v) => $v !== null));
 
-        return response()->json(['data' => $video->fresh()]);
+        return $this->success($video->fresh());
     }
 
     public function destroy(Movie $movie, Video $video): JsonResponse
     {
         $video->delete();
 
-        return response()->json(['message' => 'Video removed.']);
+        return $this->success(null, 'Video removed.');
     }
 }

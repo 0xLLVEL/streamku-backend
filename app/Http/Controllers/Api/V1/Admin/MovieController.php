@@ -20,7 +20,7 @@ class MovieController extends Controller
             $query->where('title', 'like', '%'.$request->input('search').'%');
         }
 
-        return response()->json($query->orderByDesc('created_at')->paginate(20));
+        return $this->success($query->orderByDesc('created_at')->paginate(20)->toArray());
     }
 
     public function store(StoreMovieData $data): JsonResponse
@@ -36,14 +36,14 @@ class MovieController extends Controller
 
         $movie->load('genres');
 
-        return response()->json(['data' => $movie], 201);
+        return $this->success($movie, null, 201);
     }
 
     public function show(Movie $movie): JsonResponse
     {
         $movie->load(['genres', 'cast', 'videos']);
 
-        return response()->json(['data' => $movie]);
+        return $this->success($movie);
     }
 
     public function update(UpdateMovieData $data, Movie $movie): JsonResponse
@@ -60,20 +60,20 @@ class MovieController extends Controller
             $movie->genres()->sync($data->genre_ids);
         }
 
-        return response()->json(['data' => $movie->fresh(['genres', 'cast', 'videos'])]);
+        return $this->success($movie->fresh(['genres', 'cast', 'videos']));
     }
 
     public function destroy(Movie $movie): JsonResponse
     {
         $movie->delete();
 
-        return response()->json(['message' => 'Movie deleted.']);
+        return $this->success(null, 'Movie deleted.');
     }
 
     public function toggleFeatured(Movie $movie): JsonResponse
     {
         $movie->update(['is_featured' => ! $movie->is_featured]);
 
-        return response()->json(['data' => $movie->fresh(), 'message' => $movie->is_featured ? 'Featured.' : 'Unfeatured.']);
+        return $this->success($movie->fresh(), $movie->is_featured ? 'Featured.' : 'Unfeatured.');
     }
 }

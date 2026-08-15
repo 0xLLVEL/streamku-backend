@@ -38,7 +38,7 @@ class MovieController extends Controller
             return $query->paginate($request->integer('per_page', 20));
         });
 
-        return response()->json($movies);
+        return $this->success($movies->toArray());
     }
 
     public function show(Movie $movie): JsonResponse
@@ -52,6 +52,6 @@ class MovieController extends Controller
             'videos' => $movie->videos->toArray(),
         ]);
 
-        return response()->json(['data' => $data]);
+        return $this->success($data);
     }
 }

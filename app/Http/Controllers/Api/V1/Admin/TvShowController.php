@@ -20,7 +20,7 @@ class TvShowController extends Controller
             $query->where('name', 'like', '%'.$request->input('search').'%');
         }
 
-        return response()->json($query->orderByDesc('created_at')->paginate(20));
+        return $this->success($query->orderByDesc('created_at')->paginate(20)->toArray());
     }
 
     public function store(StoreTvShowData $data): JsonResponse
@@ -36,14 +36,14 @@ class TvShowController extends Controller
 
         $tvShow->load('genres');
 
-        return response()->json(['data' => $tvShow], 201);
+        return $this->success($tvShow, null, 201);
     }
 
     public function show(TvShow $tvShow): JsonResponse
     {
         $tvShow->load(['genres', 'cast', 'videos', 'seasons.episodes']);
 
-        return response()->json(['data' => $tvShow]);
+        return $this->success($tvShow);
     }
 
     public function update(UpdateTvShowData $data, TvShow $tvShow): JsonResponse
@@ -60,20 +60,20 @@ class TvShowController extends Controller
             $tvShow->genres()->sync($data->genre_ids);
         }
 
-        return response()->json(['data' => $tvShow->fresh(['genres', 'cast', 'videos', 'seasons'])]);
+        return $this->success($tvShow->fresh(['genres', 'cast', 'videos', 'seasons']));
     }
 
     public function destroy(TvShow $tvShow): JsonResponse
     {
         $tvShow->delete();
 
-        return response()->json(['message' => 'TV show deleted.']);
+        return $this->success(null, 'TV show deleted.');
     }
 
     public function toggleFeatured(TvShow $tvShow): JsonResponse
     {
         $tvShow->update(['is_featured' => ! $tvShow->is_featured]);
 
-        return response()->json(['data' => $tvShow->fresh(), 'message' => $tvShow->is_featured ? 'Featured.' : 'Unfeatured.']);
+        return $this->success($tvShow->fresh(), $tvShow->is_featured ? 'Featured.' : 'Unfeatured.');
     }
 }

@@ -19,7 +19,7 @@ class TmdbImportController extends Controller
 
         $movie = $this->importService->importMovie($request->integer('tmdb_id'));
 
-        return response()->json(['data' => $movie, 'message' => 'Movie imported successfully.'], 201);
+        return $this->success($movie, 'Movie imported successfully.', 201);
     }
 
     public function importTv(Request $request): JsonResponse
@@ -28,7 +28,7 @@ class TmdbImportController extends Controller
 
         $tvShow = $this->importService->importTvShow($request->integer('tmdb_id'));
 
-        return response()->json(['data' => $tvShow, 'message' => 'TV show imported successfully.'], 201);
+        return $this->success($tvShow, 'TV show imported successfully.', 201);
     }
 
     public function importBulk(Request $request): JsonResponse
@@ -44,13 +44,13 @@ class TmdbImportController extends Controller
             $request->input('type')
         );
 
-        return response()->json(['data' => $results, 'message' => $results->count().' items imported.'], 201);
+        return $this->success($results, $results->count().' items imported.', 201);
     }
 
     public function syncGenres(): JsonResponse
     {
         $this->importService->syncAllGenres();
 
-        return response()->json(['message' => 'Genres synced from TMDB.']);
+        return $this->success(null, 'Genres synced from TMDB.');
     }
 }

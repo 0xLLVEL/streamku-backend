@@ -18,14 +18,14 @@ class MediaStreamController extends Controller
     {
         $media = $movie->media()->with('quality')->get()->groupBy('collection');
 
-        return response()->json(['data' => $media]);
+        return $this->success($media);
     }
 
     public function episodeMedia(TvShow $tvShow, Season $season, Episode $episode): JsonResponse
     {
         $media = $episode->media()->with('quality')->get()->groupBy('collection');
 
-        return response()->json(['data' => $media]);
+        return $this->success($media);
     }
 
     public function stream(Media $media): StreamedResponse

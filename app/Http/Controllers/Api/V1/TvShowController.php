@@ -33,25 +33,25 @@ class TvShowController extends Controller
 
         $query->orderByDesc($sortField);
 
-        return response()->json($query->paginate($request->integer('per_page', 20)));
+        return $this->success($query->paginate($request->integer('per_page', 20))->toArray());
     }
 
     public function show(TvShow $tvShow): JsonResponse
     {
         $tvShow->load(['genres', 'cast', 'videos', 'seasons']);
 
-        return response()->json(['data' => $tvShow]);
+        return $this->success(\App\Data\TvShowData::from($tvShow));
     }
 
     public function season(TvShow $tvShow, Season $season): JsonResponse
     {
         $season->load('episodes');
 
-        return response()->json(['data' => $season]);
+        return $this->success($season);
     }
 
     public function episode(TvShow $tvShow, Season $season, Episode $episode): JsonResponse
     {
-        return response()->json(['data' => $episode]);
+        return $this->success($episode);
     }
 }

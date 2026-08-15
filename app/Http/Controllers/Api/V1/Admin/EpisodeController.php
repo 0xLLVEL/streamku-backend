@@ -26,19 +26,19 @@ class EpisodeController extends Controller
         $season->update(['episode_count' => $season->episodes()->count()]);
         $tvShow->update(['number_of_episodes' => $tvShow->seasons()->withCount('episodes')->get()->sum('episodes_count')]);
 
-        return response()->json(['data' => $episode], 201);
+        return $this->success($episode, null, 201);
     }
 
     public function show(TvShow $tvShow, Season $season, Episode $episode): JsonResponse
     {
-        return response()->json(['data' => $episode]);
+        return $this->success($episode);
     }
 
     public function update(UpdateEpisodeData $data, TvShow $tvShow, Season $season, Episode $episode): JsonResponse
     {
         $episode->update(array_filter($data->toArray(), fn ($v) => $v !== null));
 
-        return response()->json(['data' => $episode->fresh()]);
+        return $this->success($episode->fresh());
     }
 
     public function destroy(TvShow $tvShow, Season $season, Episode $episode): JsonResponse
@@ -48,6 +48,6 @@ class EpisodeController extends Controller
         $season->update(['episode_count' => $season->episodes()->count()]);
         $tvShow->update(['number_of_episodes' => $tvShow->seasons()->withCount('episodes')->get()->sum('episodes_count')]);
 
-        return response()->json(['message' => 'Episode deleted.']);
+        return $this->success(null, 'Episode deleted.');
     }
 }

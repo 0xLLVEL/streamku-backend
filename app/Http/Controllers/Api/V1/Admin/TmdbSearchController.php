@@ -30,16 +30,16 @@ class TmdbSearchController extends Controller
             default => $this->client->searchMulti($query, $page),
         };
 
-        return response()->json($results);
+        return $this->success($results);
     }
 
     public function previewMovie(int $tmdbId): JsonResponse
     {
-        return response()->json($this->client->getMovie($tmdbId));
+        return $this->success($this->client->getMovie($tmdbId));
     }
 
     public function previewTv(int $tmdbId): JsonResponse
     {
-        return response()->json($this->client->getTvShow($tmdbId));
+        return $this->success($this->client->getTvShow($tmdbId));
     }
 }

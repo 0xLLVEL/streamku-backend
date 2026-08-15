@@ -23,7 +23,7 @@ class UploadController extends Controller
             ->latest()
             ->paginate(20);
 
-        return response()->json($uploads);
+        return $this->success($uploads);
     }
 
     public function initiate(InitiateUploadData $data): JsonResponse
@@ -69,7 +69,7 @@ class UploadController extends Controller
                 'progress_percent' => $upload->fresh()->progress_percent,
             ]);
         } catch (\RuntimeException|\InvalidArgumentException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return $this->error($e->getMessage(), 422);
         }
     }
 
@@ -90,7 +90,7 @@ class UploadController extends Controller
                 'message' => 'Upload completed. Media created.',
             ], 201);
         } catch (\RuntimeException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return $this->error($e->getMessage(), 422);
         }
     }
 
@@ -98,6 +98,6 @@ class UploadController extends Controller
     {
         $this->uploadService->cancel($upload);
 
-        return response()->json(['message' => 'Upload cancelled.']);
+        return $this->success(null, 'Upload cancelled.');
     }
 }

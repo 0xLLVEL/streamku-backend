@@ -60,6 +60,6 @@ class BrowseController extends Controller
             ];
         });
 
-        return response()->json(['rows' => $rows]);
+        return $this->success(['rows' => $rows]);
     }
 }

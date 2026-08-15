@@ -20,7 +20,7 @@ class ReviewController extends Controller
             ->latest()
             ->paginate(20);
 
-        return response()->json($reviews);
+        return $this->success($reviews->toArray());
     }
 
     public function store(StoreReviewData $data): JsonResponse
@@ -32,7 +32,7 @@ class ReviewController extends Controller
         };
 
         if (! $morphType) {
-            return response()->json(['message' => 'Invalid reviewable type.'], 422);
+            return $this->error('Invalid reviewable type.', 422);
         }
 
         $review = request()->user()->reviews()->updateOrCreate(
@@ -48,29 +48,29 @@ class ReviewController extends Controller
 
         $review->load('reviewable');
 
-        return response()->json(['data' => $review], 201);
+        return $this->success($review, null, 201);
     }
 
     public function update(UpdateReviewData $data, Review $review): JsonResponse
     {
         if ($review->user_id !== request()->user()->id) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+            return $this->error('Forbidden.', 403);
         }
 
         $review->update(array_filter($data->toArray(), fn ($v) => $v !== null));
 
-        return response()->json(['data' => $review->fresh()]);
+        return $this->success($review->fresh());
     }
 
     public function destroy(Review $review): JsonResponse
     {
         if ($review->user_id !== request()->user()->id) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+            return $this->error('Forbidden.', 403);
         }
 
         $review->delete();
 
-        return response()->json(['message' => 'Review deleted.']);
+        return $this->success(null, 'Review deleted.');
     }
 
     public function forTitle(string $type, int $id): JsonResponse
@@ -82,7 +82,7 @@ class ReviewController extends Controller
         };
 
         if (! $morphType) {
-            return response()->json(['message' => 'Invalid type.'], 422);
+            return $this->error('Invalid type.', 422);
         }
 
         $reviews = Review::with('user')
@@ -91,6 +91,6 @@ class ReviewController extends Controller
             ->latest()
             ->paginate(20);
 
-        return response()->json($reviews);
+        return $this->success($reviews->toArray());
     }
 }

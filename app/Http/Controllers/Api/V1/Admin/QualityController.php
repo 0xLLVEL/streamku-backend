@@ -22,25 +22,25 @@ class QualityController extends Controller
     {
         $quality = Quality::create($data->toArray());
 
-        return response()->json(['data' => QualityData::from($quality)], 201);
+        return $this->success(QualityData::from($quality), null, 201);
     }
 
     public function show(Quality $quality): JsonResponse
     {
-        return response()->json(['data' => QualityData::from($quality)]);
+        return $this->success(QualityData::from($quality));
     }
 
     public function update(UpdateQualityData $data, Quality $quality): JsonResponse
     {
         $quality->update(array_filter($data->toArray(), fn ($v) => $v !== null));
 
-        return response()->json(['data' => QualityData::from($quality->fresh())]);
+        return $this->success(QualityData::from($quality->fresh()));
     }
 
     public function destroy(Quality $quality): JsonResponse
     {
         $quality->delete();
 
-        return response()->json(['message' => 'Quality deleted.']);
+        return $this->success(null, 'Quality deleted.');
     }
 }

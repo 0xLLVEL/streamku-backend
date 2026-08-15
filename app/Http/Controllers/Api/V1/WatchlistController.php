@@ -19,7 +19,7 @@ class WatchlistController extends Controller
             ->latest()
             ->paginate(20);
 
-        return response()->json($items);
+        return $this->success($items->toArray());
     }
 
     public function store(StoreWatchlistData $data): JsonResponse
@@ -31,7 +31,7 @@ class WatchlistController extends Controller
         };
 
         if (! $morphType) {
-            return response()->json(['message' => 'Invalid watchlistable type.'], 422);
+            return $this->error('Invalid watchlistable type.', 422);
         }
 
         $item = request()->user()->watchlists()->firstOrCreate([
@@ -41,17 +41,17 @@ class WatchlistController extends Controller
 
         $item->load('watchlistable');
 
-        return response()->json(['data' => $item], 201);
+        return $this->success($item, null, 201);
     }
 
     public function destroy(Watchlist $watchlist): JsonResponse
     {
         if ($watchlist->user_id !== request()->user()->id) {
-            return response()->json(['message' => 'Forbidden.'], 403);
+            return $this->error('Forbidden.', 403);
         }
 
         $watchlist->delete();
 
-        return response()->json(['message' => 'Removed from watchlist.']);
+        return $this->success(null, 'Removed from watchlist.');
     }
 }

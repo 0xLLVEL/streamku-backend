@@ -29,21 +29,27 @@ class WatchPartyController extends Controller
 
         $party->members()->attach($request->user()->id);
 
-        return response()->json(['data' => $party]);
+        return $this->success([
+            'id' => $party->id,
+            'host_id' => $party->host_id,
+            'mediable_type' => $party->mediable_type,
+            'mediable_id' => $party->mediable_id,
+            'created_at' => $party->created_at,
+        ]);
     }
 
     public function show(WatchParty $watchParty): JsonResponse
     {
         $watchParty->load(['host', 'members', 'mediable']);
         
-        return response()->json(['data' => $watchParty]);
+        return $this->success($watchParty);
     }
 
     public function join(Request $request, WatchParty $watchParty): JsonResponse
     {
         $watchParty->members()->syncWithoutDetaching([$request->user()->id]);
 
-        return response()->json(['message' => 'Joined successfully']);
+        return $this->success(null, 'Joined successfully');
     }
 
     public function sync(Request $request, WatchParty $watchParty): JsonResponse
@@ -59,6 +65,6 @@ class WatchPartyController extends Controller
 
         broadcast(new WatchPartySynced($watchParty->id, $validated['is_playing'], $validated['current_time']))->toOthers();
 
-        return response()->json(['message' => 'Synced']);
+        return $this->success(null, 'Synced');
     }
 }

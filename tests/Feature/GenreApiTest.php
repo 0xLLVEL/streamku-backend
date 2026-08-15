@@ -23,5 +23,5 @@ test('users can view a genre', function () {
     $response = $this->actingAs($user)->getJson(route('genres.show', $genre));
 
     $response->assertOk()
-        ->assertJsonPath('data.name', 'Action');
+        ->assertJsonPath('data.genre.name', 'Action');
 });

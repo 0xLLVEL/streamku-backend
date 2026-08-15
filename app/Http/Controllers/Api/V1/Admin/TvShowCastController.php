@@ -12,27 +12,27 @@ class TvShowCastController extends Controller
 {
     public function index(TvShow $tvShow): JsonResponse
     {
-        return response()->json(['data' => $tvShow->cast()->orderBy('order')->get()]);
+        return $this->success($tvShow->cast()->orderBy('order')->get());
     }
 
     public function store(StoreCastData $data, TvShow $tvShow): JsonResponse
     {
         $cast = $tvShow->cast()->create($data->toArray());
 
-        return response()->json(['data' => $cast], 201);
+        return $this->success($cast, null, 201);
     }
 
     public function update(StoreCastData $data, TvShow $tvShow, Cast $cast): JsonResponse
     {
         $cast->update(array_filter($data->toArray(), fn ($v) => $v !== null));
 
-        return response()->json(['data' => $cast->fresh()]);
+        return $this->success($cast->fresh());
     }
 
     public function destroy(TvShow $tvShow, Cast $cast): JsonResponse
     {
         $cast->delete();
 
-        return response()->json(['message' => 'Cast member removed.']);
+        return $this->success(null, 'Cast member removed.');
     }
 }

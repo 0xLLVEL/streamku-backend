@@ -14,7 +14,7 @@ test('user can register', function () {
     ]);
 
     $response->assertCreated()
-        ->assertJsonStructure(['user' => ['id', 'name', 'email'], 'token']);
+        ->assertJsonStructure(['data' => ['user' => ['id', 'name', 'email'], 'token']]);
 
     $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
 });
@@ -30,7 +30,7 @@ test('user can login', function () {
     ]);
 
     $response->assertOk()
-        ->assertJsonStructure(['user' => ['id', 'email'], 'token']);
+        ->assertJsonStructure(['data' => ['user' => ['id', 'email'], 'token']]);
 });
 
 test('user can get their profile', function () {
@@ -39,7 +39,7 @@ test('user can get their profile', function () {
     $response = $this->actingAs($user)->getJson(route('auth.me'));
 
     $response->assertOk()
-        ->assertJsonPath('user.email', $user->email);
+        ->assertJsonPath('data.user.email', $user->email);
 });
 
 test('user can logout', function () {
@@ -53,7 +53,7 @@ test('user can logout', function () {
         'password' => 'password',
     ]);
 
-    $token = $loginResponse->json('token');
+    $token = $loginResponse->json('data.token');
 
     $response = $this->withToken($token)->postJson(route('auth.logout'));
 
