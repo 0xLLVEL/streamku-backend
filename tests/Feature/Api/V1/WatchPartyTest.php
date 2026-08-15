@@ -20,8 +20,8 @@ test('authenticated user can create a watch party', function () {
 
     $response->assertStatus(200)
              ->assertJsonPath('data.host_id', $user->id)
-             ->assertJsonPath('data.mediable_type', Movie::class)
-             ->assertJsonPath('data.mediable_id', $movie->id);
+             ->assertJsonPath('data.media_type', 'movie')
+             ->assertJsonPath('data.media_id', $movie->id);
 
     $this->assertDatabaseHas('watch_parties', [
         'host_id' => $user->id,

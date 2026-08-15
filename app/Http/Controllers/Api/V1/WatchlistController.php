@@ -19,6 +19,7 @@ class WatchlistController extends Controller
             ->latest()
             ->paginate(20);
 
+        $items->setCollection($items->getCollection()->map(fn($w) => \App\Data\WatchlistData::fromModel($w)));
         return $this->success($items->toArray());
     }
 
@@ -41,7 +42,7 @@ class WatchlistController extends Controller
 
         $item->load('watchlistable');
 
-        return $this->success($item, null, 201);
+        return $this->success(\App\Data\WatchlistData::fromModel($item), null, 201);
     }
 
     public function destroy(Watchlist $watchlist): JsonResponse

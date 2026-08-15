@@ -47,11 +47,11 @@ class TvShowController extends Controller
     {
         $season->load('episodes');
 
-        return $this->success($season);
+        return $this->success(\App\Data\SeasonData::from($season));
     }
 
     public function episode(TvShow $tvShow, Season $season, Episode $episode): JsonResponse
     {
-        return $this->success($episode);
+        return $this->success(\App\Data\EpisodeData::from($episode));
     }
 }

@@ -18,6 +18,7 @@ class WatchHistoryController extends Controller
             ->latest('last_watched_at')
             ->paginate(20);
 
+        $history->setCollection($history->getCollection()->map(fn($h) => \App\Data\WatchHistoryData::fromModel($h)));
         return $this->success($history->toArray());
     }
 
@@ -46,7 +47,7 @@ class WatchHistoryController extends Controller
             ]
         );
 
-        return $this->success($history);
+        return $this->success(\App\Data\WatchHistoryData::fromModel($history));
     }
 
     public function continueWatching(): JsonResponse
@@ -60,6 +61,8 @@ class WatchHistoryController extends Controller
             ->limit(20)
             ->get();
 
-        return $this->success($items);
+        return $this->success(\App\Data\WatchHistoryData::collect(
+            $items->map(fn($h) => \App\Data\WatchHistoryData::fromModel($h))
+        ));
     }
 }

@@ -29,20 +29,14 @@ class WatchPartyController extends Controller
 
         $party->members()->attach($request->user()->id);
 
-        return $this->success([
-            'id' => $party->id,
-            'host_id' => $party->host_id,
-            'mediable_type' => $party->mediable_type,
-            'mediable_id' => $party->mediable_id,
-            'created_at' => $party->created_at,
-        ]);
+        return $this->success(\App\Data\WatchPartyData::fromModel($party));
     }
 
     public function show(WatchParty $watchParty): JsonResponse
     {
         $watchParty->load(['host', 'members', 'mediable']);
         
-        return $this->success($watchParty);
+        return $this->success(\App\Data\WatchPartyData::fromModel($watchParty));
     }
 
     public function join(Request $request, WatchParty $watchParty): JsonResponse

@@ -16,14 +16,18 @@ class MediaStreamController extends Controller
 {
     public function movieMedia(Movie $movie): JsonResponse
     {
-        $media = $movie->media()->with('quality')->get()->groupBy('collection');
+        $media = $movie->media()->with('quality')->get()
+            ->map(fn($m) => \App\Data\MediaData::from($m))
+            ->groupBy('collection');
 
         return $this->success($media);
     }
 
     public function episodeMedia(TvShow $tvShow, Season $season, Episode $episode): JsonResponse
     {
-        $media = $episode->media()->with('quality')->get()->groupBy('collection');
+        $media = $episode->media()->with('quality')->get()
+            ->map(fn($m) => \App\Data\MediaData::from($m))
+            ->groupBy('collection');
 
         return $this->success($media);
     }

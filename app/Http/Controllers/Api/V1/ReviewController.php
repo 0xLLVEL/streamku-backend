@@ -20,6 +20,7 @@ class ReviewController extends Controller
             ->latest()
             ->paginate(20);
 
+        $reviews->setCollection($reviews->getCollection()->map(fn($r) => \App\Data\ReviewData::fromModel($r)));
         return $this->success($reviews->toArray());
     }
 
@@ -48,7 +49,7 @@ class ReviewController extends Controller
 
         $review->load('reviewable');
 
-        return $this->success($review, null, 201);
+        return $this->success(\App\Data\ReviewData::fromModel($review), null, 201);
     }
 
     public function update(UpdateReviewData $data, Review $review): JsonResponse
@@ -59,7 +60,7 @@ class ReviewController extends Controller
 
         $review->update(array_filter($data->toArray(), fn ($v) => $v !== null));
 
-        return $this->success($review->fresh());
+        return $this->success(\App\Data\ReviewData::fromModel($review->fresh()));
     }
 
     public function destroy(Review $review): JsonResponse
@@ -91,6 +92,7 @@ class ReviewController extends Controller
             ->latest()
             ->paginate(20);
 
+        $reviews->setCollection($reviews->getCollection()->map(fn($r) => \App\Data\ReviewData::fromModel($r)));
         return $this->success($reviews->toArray());
     }
 }
