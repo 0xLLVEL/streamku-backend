@@ -3,14 +3,18 @@
 namespace App\Services;
 
 use App\Data\UploadStatusData;
+use App\Jobs\ProcessVideoDownscale;
 use App\Models\Episode;
 use App\Models\Media;
 use App\Models\Movie;
+use App\Models\Quality;
 use App\Models\Upload;
 use App\Models\UploadChunk;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
 
 class ChunkedUploadService
 {
@@ -117,10 +121,32 @@ class ChunkedUploadService
 
         $this->mergeChunks($upload, $finalPath);
 
+        $width = null;
+        $height = null;
+        $duration = null;
+        $qualityId = $upload->quality_id;
+
+        $disk = Storage::disk($upload->disk);
+        $absolutePath = $disk->path($finalPath);
+
+        if ($upload->type === 'image') {
+            $sizes = @getimagesize($absolutePath);
+            if ($sizes) {
+                $width = $sizes[0];
+                $height = $sizes[1];
+            }
+        } elseif ($upload->type === 'video' && $qualityId) {
+            $quality = Quality::find($qualityId);
+            if ($quality) {
+                $width = $quality->width;
+                $height = $quality->height;
+            }
+        }
+
         $media = Media::create([
             'mediable_id' => $upload->mediable_id,
             'mediable_type' => $upload->mediable_type,
-            'quality_id' => $upload->quality_id,
+            'quality_id' => $qualityId,
             'type' => $upload->type,
             'collection' => $upload->collection,
             'disk' => $upload->disk,
@@ -128,7 +154,10 @@ class ChunkedUploadService
             'original_filename' => $upload->filename,
             'mime_type' => $upload->mime_type,
             'size' => $upload->total_size,
-            'is_primary' => false,
+            'width' => $width,
+            'height' => $height,
+            'duration' => $duration,
+            'is_primary' => true,
         ]);
 
         $upload->update([
@@ -137,6 +166,10 @@ class ChunkedUploadService
         ]);
 
         $this->cleanupChunks($upload);
+
+        if ($media->type === 'video') {
+            ProcessVideoDownscale::dispatch($media);
+        }
 
         return $media->load('quality');
     }
