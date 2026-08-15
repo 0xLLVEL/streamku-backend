@@ -21,6 +21,13 @@ class Media extends Model
     use HasFactory;
 
     /**
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'url',
+    ];
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array

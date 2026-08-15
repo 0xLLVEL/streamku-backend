@@ -16,6 +16,7 @@ class InitiateUploadData extends Data
         public string $type,
         public ?int $quality_id = null,
         public string $collection = 'default',
+        public ?array $metadata = null,
     ) {}
 
     /**
@@ -29,9 +30,12 @@ class InitiateUploadData extends Data
             'total_size' => ['required', 'integer', 'min:1'],
             'mediable_id' => ['required', 'integer'],
             'mediable_type' => ['required', 'string', 'in:movie,episode'],
-            'type' => ['required', 'string', 'in:video,image'],
+            'type' => ['required', 'string', 'in:video,image,subtitle'],
             'quality_id' => ['nullable', 'integer', 'exists:qualities,id'],
-            'collection' => ['string', 'in:default,poster,backdrop,thumbnail,stream'],
+            'collection' => ['string', 'in:default,poster,backdrop,thumbnail,stream,subtitles'],
+            'metadata' => ['nullable', 'array'],
+            'metadata.language' => ['nullable', 'string', 'max:50'],
+            'metadata.label' => ['nullable', 'string', 'max:100'],
         ];
     }
 }

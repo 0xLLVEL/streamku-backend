@@ -33,71 +33,62 @@ class ProcessVideoDownscale implements ShouldQueue
      */
     public function handle(): void
     {
-        // Must be a video and have a defined quality height to downscale from
         if ($this->media->type !== 'video' || ! $this->media->height) {
             return;
         }
 
-        // Find all qualities with a height lower than the original video
-        $lowerQualities = Quality::where('height', '<', $this->media->height)
+        // We want all qualities up to the original video's height
+        $qualities = Quality::where('height', '<=', $this->media->height)
             ->orderByDesc('height')
             ->get();
 
-        if ($lowerQualities->isEmpty()) {
+        if ($qualities->isEmpty()) {
             return;
         }
 
-        $extension = pathinfo($this->media->original_filename, PATHINFO_EXTENSION);
-        $baseDir = dirname($this->media->path); // e.g. media/videos/2026/08
+        $hlsDir = "media/videos/hls/{$this->media->id}";
+        $playlistPath = "{$hlsDir}/master.m3u8";
 
-        foreach ($lowerQualities as $quality) {
-            $newFilename = Str::uuid()->toString().'.'.$extension;
-            $newPath = $baseDir.'/'.$newFilename;
+        Log::info("Starting HLS export for Media ID {$this->media->id}.");
 
-            Log::info("Starting downscale for Media ID {$this->media->id} to {$quality->label} ({$quality->height}p).");
+        try {
+            $export = FFMpeg::fromDisk($this->media->disk)
+                ->open($this->media->path)
+                ->exportForHLS()
+                ->setSegmentLength(10)
+                ->setKeyFrameInterval(48);
 
-            try {
-                $format = new X264;
-                if ($quality->bitrate) {
-                    $format->setKiloBitrate($quality->bitrate);
-                }
+            foreach ($qualities as $quality) {
+                $format = (new X264)->setKiloBitrate($quality->bitrate ?? 2000);
+                
+                $export->addFormat($format, function ($media) use ($quality) {
+                    $media->scale($quality->width, $quality->height);
+                });
+            }
 
-                FFMpeg::fromDisk($this->media->disk)
-                    ->open($this->media->path)
-                    ->export()
-                    ->toDisk($this->media->disk)
-                    ->inFormat($format)
-                    ->resize($quality->width, $quality->height)
-                    ->save($newPath);
+            // Save HLS to public disk so it can be served dynamically
+            $export->toDisk('public')->save($playlistPath);
 
-                // Re-open transcoded file to get exact final stats (optional, but good for accuracy)
-                $newMediaFile = FFMpeg::fromDisk($this->media->disk)->open($newPath);
-                $newStream = $newMediaFile->getVideoStream();
+            // Delete original MP4
+            if (Storage::disk($this->media->disk)->exists($this->media->path)) {
+                Storage::disk($this->media->disk)->delete($this->media->path);
+            }
 
-                Media::create([
-                    'mediable_id' => $this->media->mediable_id,
-                    'mediable_type' => $this->media->mediable_type,
-                    'quality_id' => $quality->id,
-                    'type' => 'video',
-                    'collection' => $this->media->collection,
-                    'disk' => $this->media->disk,
-                    'path' => $newPath,
-                    'original_filename' => $quality->name.'_'.$this->media->original_filename,
-                    'mime_type' => $this->media->mime_type,
-                    'size' => Storage::disk($this->media->disk)->size($newPath),
-                    'duration' => $this->media->duration,
-                    'width' => $newStream?->getDimensions()?->getWidth() ?? $quality->width,
-                    'height' => $newStream?->getDimensions()?->getHeight() ?? $quality->height,
-                    'is_primary' => false,
-                ]);
+            // Update Media Model
+            $this->media->update([
+                'disk' => 'public',
+                'path' => $playlistPath,
+                'mime_type' => 'application/vnd.apple.mpegurl',
+            ]);
 
-                Log::info("Downscale complete: {$quality->label} ({$quality->height}p) saved to {$newPath}.");
-            } catch (\Throwable $e) {
-                Log::error("Failed to downscale Media ID {$this->media->id} to {$quality->label}: ".$e->getMessage());
-                // Clean up partial file if it exists
-                if (Storage::disk($this->media->disk)->exists($newPath)) {
-                    Storage::disk($this->media->disk)->delete($newPath);
-                }
+            Log::info("HLS Export complete for Media ID {$this->media->id} saved to {$playlistPath}.");
+
+        } catch (\Throwable $e) {
+            Log::error("Failed to export HLS for Media ID {$this->media->id}: ".$e->getMessage());
+            
+            // Clean up partial HLS files
+            if (Storage::disk('public')->exists($hlsDir)) {
+                Storage::disk('public')->deleteDirectory($hlsDir);
             }
         }
     }

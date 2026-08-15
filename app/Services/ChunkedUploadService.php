@@ -41,7 +41,12 @@ class ChunkedUploadService
             default => throw new \InvalidArgumentException('Invalid mediable type.'),
         };
 
-        $disk = $data['type'] === 'video' ? 'local' : 'public';
+        $disk = 'public';
+        if ($data['type'] === 'video') {
+            $disk = 'local';
+        } elseif ($data['type'] === 'subtitle') {
+            $disk = 'public'; // Store subtitles in public disk for web accessibility
+        }
 
         return Upload::create([
             'upload_id' => Str::uuid()->toString(),
@@ -59,6 +64,7 @@ class ChunkedUploadService
             'quality_id' => $data['quality_id'] ?? null,
             'collection' => $data['collection'] ?? 'default',
             'type' => $data['type'],
+            'metadata' => $data['metadata'] ?? null,
             'expires_at' => now()->addHours(24),
         ]);
     }
@@ -115,7 +121,11 @@ class ChunkedUploadService
 
         $extension = pathinfo($upload->filename, PATHINFO_EXTENSION);
         $filename = Str::uuid()->toString().'.'.$extension;
-        $subDir = $upload->type === 'video' ? 'videos' : 'images';
+        $subDir = match ($upload->type) {
+            'video' => 'videos',
+            'subtitle' => 'subtitles',
+            default => 'images',
+        };
         $finalPath = "media/{$subDir}/".now()->format('Y/m')."/{$filename}";
 
         $this->mergeChunks($upload, $finalPath);
@@ -157,6 +167,7 @@ class ChunkedUploadService
             'height' => $height,
             'duration' => $duration,
             'is_primary' => true,
+            'metadata' => $upload->metadata,
         ]);
 
         $upload->update([
