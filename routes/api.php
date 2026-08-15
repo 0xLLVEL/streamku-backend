@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\WatchPartyController;
 use App\Http\Controllers\Api\V1\BrowseController;
 use App\Http\Controllers\Api\V1\GenreController;
 use App\Http\Controllers\Api\V1\MediaStreamController;
@@ -70,6 +71,12 @@ Route::prefix('v1')->group(function () {
         Route::get('/movies/{movie:slug}/media', [MediaStreamController::class, 'movieMedia'])->name('movies.media');
         Route::get('/tv-shows/{tvShow:slug}/seasons/{season:season_number}/episodes/{episode:episode_number}/media', [MediaStreamController::class, 'episodeMedia'])->name('episodes.media');
         Route::get('/media/{media}/stream', [MediaStreamController::class, 'stream'])->name('media.stream');
+
+        // Watch Parties
+        Route::post('/watch-parties', [WatchPartyController::class, 'store'])->name('watch-parties.store');
+        Route::get('/watch-parties/{watchParty}', [WatchPartyController::class, 'show'])->name('watch-parties.show');
+        Route::post('/watch-parties/{watchParty}/join', [WatchPartyController::class, 'join'])->name('watch-parties.join');
+        Route::post('/watch-parties/{watchParty}/sync', [WatchPartyController::class, 'sync'])->name('watch-parties.sync');
 
         // ── Admin ───────────────────────────────────────────
         Route::prefix('admin')->middleware(EnsureUserIsAdmin::class)->group(function () {
