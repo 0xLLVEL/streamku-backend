@@ -13,7 +13,7 @@ class TvShowController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = TvShow::with('genres');
+        $query = TvShow::query();
 
         if ($request->filled('genre')) {
             $query->whereHas('genres', fn ($q) => $q->where('slug', $request->input('genre')));

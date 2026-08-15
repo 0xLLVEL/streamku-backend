@@ -14,7 +14,7 @@ class MovieController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Movie::with('genres');
+        $query = Movie::query();
 
         if ($request->filled('search')) {
             $query->where('title', 'like', '%'.$request->input('search').'%');

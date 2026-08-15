@@ -15,7 +15,7 @@ class MovieController extends Controller
         $cacheKey = 'movies_index_' . md5(json_encode($request->all()));
 
         $movies = \Illuminate\Support\Facades\Cache::remember($cacheKey, now()->addMinutes(30), function () use ($request) {
-            $query = Movie::with('genres');
+            $query = Movie::query();
 
             if ($request->filled('genre')) {
                 $query->whereHas('genres', fn ($q) => $q->where('slug', $request->input('genre')));

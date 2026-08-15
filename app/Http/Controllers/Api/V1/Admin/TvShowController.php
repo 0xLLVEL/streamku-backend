@@ -14,7 +14,7 @@ class TvShowController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = TvShow::with('genres');
+        $query = TvShow::query();
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%'.$request->input('search').'%');
