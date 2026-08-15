@@ -20,6 +20,7 @@ class AuthController extends Controller
             'email' => $data->email,
             'password' => $data->password,
         ]);
+        $user->refresh();
 
         $token = $user->createToken('auth-token')->plainTextToken;
 

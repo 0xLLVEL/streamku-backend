@@ -11,10 +11,8 @@ use App\Models\Quality;
 use App\Models\Upload;
 use App\Models\UploadChunk;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
 
 class ChunkedUploadService
 {
@@ -53,6 +51,7 @@ class ChunkedUploadService
             'total_size' => $data['total_size'],
             'chunk_size' => $chunkSize,
             'total_chunks' => $totalChunks,
+            'received_chunks' => 0,
             'status' => 'pending',
             'disk' => $disk,
             'mediable_id' => $data['mediable_id'],
