@@ -55,6 +55,36 @@ class WatchHistoryController extends Controller
         return $this->success(\App\Data\WatchHistoryData::fromModel($history));
     }
 
+    public function sync(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'watchable_type' => 'required|string|in:movie,episode',
+            'watchable_id' => 'required|integer',
+            'progress_seconds' => 'required|integer|min:0',
+            'completed' => 'required|boolean',
+        ]);
+
+        $morphType = match ($validated['watchable_type']) {
+            'movie' => Movie::class,
+            'episode' => Episode::class,
+        };
+
+        $updated = request()->user()->watchHistories()
+            ->where('watchable_id', $validated['watchable_id'])
+            ->where('watchable_type', $morphType)
+            ->update([
+                'progress_seconds' => $validated['progress_seconds'],
+                'completed' => $validated['completed'],
+                'last_watched_at' => now(),
+            ]);
+
+        if (! $updated) {
+            return $this->error('Watch history not found. Call POST /history first.', 404);
+        }
+
+        return $this->success(null, 'Progress synced successfully.');
+    }
+
     public function continueWatching(): JsonResponse
     {
         $items = request()->user()

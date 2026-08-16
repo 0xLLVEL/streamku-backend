@@ -179,6 +179,34 @@ class ChunkedUploadService
 
         if ($media->type === 'video') {
             ProcessVideoDownscale::dispatch($media);
+
+            if ($media->mediable_type === \App\Models\Episode::class) {
+                $episode = $media->mediable()->with('season.tvShow')->first();
+                if ($episode) {
+                    $videoCount = $episode->media()->where('type', 'video')->count();
+
+                    // Only notify on the FIRST uploaded video for this episode
+                    if ($videoCount === 1) {
+                        $tvShow = $episode->season->tvShow;
+                        
+                        $watchlists = \App\Models\Watchlist::with('user')
+                            ->where('watchlistable_type', \App\Models\TvShow::class)
+                            ->where('watchlistable_id', $tvShow->id)
+                            ->get();
+
+                        foreach ($watchlists as $watchlist) {
+                            if ($watchlist->user) {
+                                $watchlist->user->notify(new \App\Notifications\NewEpisodeReleased(
+                                    $tvShow,
+                                    $episode->season->season_number,
+                                    $episode->episode_number,
+                                    $episode->name ?? "Episode {$episode->episode_number}"
+                                ));
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return $media->load('quality');

@@ -61,6 +61,7 @@ Route::prefix('v1')->group(function () {
         // Watch History
         Route::get('/history', [WatchHistoryController::class, 'index'])->name('history.index');
         Route::post('/history', [WatchHistoryController::class, 'store'])->name('history.store');
+        Route::patch('/history/sync', [WatchHistoryController::class, 'sync'])->name('history.sync');
         Route::get('/history/continue-watching', [WatchHistoryController::class, 'continueWatching'])->name('history.continue');
 
         // Reviews
