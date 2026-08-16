@@ -82,6 +82,16 @@ Route::prefix('v1')->group(function () {
         Route::post('/watch-parties/{watchParty}/join', [WatchPartyController::class, 'join'])->name('watch-parties.join');
         Route::post('/watch-parties/{watchParty}/sync', [WatchPartyController::class, 'sync'])->name('watch-parties.sync');
 
+        // Friends & Activity
+        Route::prefix('friends')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Api\V1\FriendController::class, 'index'])->name('friends.index');
+            Route::get('/pending', [\App\Http\Controllers\Api\V1\FriendController::class, 'pending'])->name('friends.pending');
+            Route::post('/request', [\App\Http\Controllers\Api\V1\FriendController::class, 'request'])->name('friends.request');
+            Route::post('/{friend}/accept', [\App\Http\Controllers\Api\V1\FriendController::class, 'accept'])->name('friends.accept');
+            Route::delete('/{friend}', [\App\Http\Controllers\Api\V1\FriendController::class, 'remove'])->name('friends.remove');
+        });
+        Route::get('/activity-feed', [\App\Http\Controllers\Api\V1\ActivityFeedController::class, 'index'])->name('activity-feed');
+
         // ── Admin ───────────────────────────────────────────
         Route::prefix('admin')->middleware(EnsureUserIsAdmin::class)->group(function () {
 

@@ -59,4 +59,28 @@ class User extends Authenticatable
     {
         return $this->hasMany(Review::class);
     }
+
+    public function friends(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
+            ->withPivot('status')
+            ->wherePivot('status', 'accepted')
+            ->withTimestamps();
+    }
+
+    public function pendingFriendRequests(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'friends', 'friend_id', 'user_id')
+            ->withPivot('status')
+            ->wherePivot('status', 'pending')
+            ->withTimestamps();
+    }
+
+    public function sentFriendRequests(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
+            ->withPivot('status')
+            ->wherePivot('status', 'pending')
+            ->withTimestamps();
+    }
 }
