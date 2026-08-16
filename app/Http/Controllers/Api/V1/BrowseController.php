@@ -11,7 +11,7 @@ class BrowseController extends Controller
 {
     public function index(): JsonResponse
     {
-        $rows = \Illuminate\Support\Facades\Cache::remember('browse_rows', now()->addMinutes(60), function () {
+        $rows = \Illuminate\Support\Facades\Cache::remember('browse_rows', now()->addMinutes(5), function () {
             $featured = Movie::where('is_featured', true)
                 ->orWhereHas('genres')
                 ->limit(5)
@@ -33,6 +33,10 @@ class BrowseController extends Controller
             $recentMovies = Movie::orderByDesc('created_at')
                 ->limit(20)
                 ->get();
+                
+            $recentTvShows = TvShow::orderByDesc('created_at')
+                ->limit(20)
+                ->get();
 
             $popularTvShows = TvShow::orderByDesc('popularity')
                 ->limit(20)
@@ -44,12 +48,12 @@ class BrowseController extends Controller
                 ->get();
 
             return [
-                ['title' => 'Featured', 'items' => $featured->merge($featuredTv)],
-                ['title' => 'Popular Movies', 'items' => $popularMovies],
-                ['title' => 'Top Rated Movies', 'items' => $topRatedMovies],
-                ['title' => 'Recently Added', 'items' => $recentMovies],
-                ['title' => 'Popular TV Shows', 'items' => $popularTvShows],
-                ['title' => 'Top Rated TV Shows', 'items' => $topRatedTvShows],
+                ['title' => 'Featured', 'items' => $featured->concat($featuredTv)->values()->toArray()],
+                ['title' => 'Popular Movies', 'items' => $popularMovies->toArray()],
+                ['title' => 'Top Rated Movies', 'items' => $topRatedMovies->toArray()],
+                ['title' => 'Recently Added', 'items' => $recentMovies->concat($recentTvShows)->sortByDesc('created_at')->values()->toArray()],
+                ['title' => 'Popular TV Shows', 'items' => $popularTvShows->toArray()],
+                ['title' => 'Top Rated TV Shows', 'items' => $topRatedTvShows->toArray()],
             ];
         });
 

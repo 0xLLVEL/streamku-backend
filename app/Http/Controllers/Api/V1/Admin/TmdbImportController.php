@@ -18,7 +18,20 @@ class TmdbImportController extends Controller
         $request->validate(['tmdb_id' => ['required', 'integer']]);
 
         $language = $request->user()?->preferences['language'] ?? null;
-        $movie = $this->importService->importMovie($request->integer('tmdb_id'), $language);
+        
+        try {
+            $movie = $this->importService->importMovie($request->integer('tmdb_id'), $language);
+        } catch (\Illuminate\Http\Client\RequestException $e) {
+            if ($e->response->status() === 404) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'TMDB ID not found or is not a valid Movie.'
+                ], 404);
+            }
+            throw $e;
+        }
+
+        \Illuminate\Support\Facades\Cache::forget('browse_rows');
 
         return $this->success($movie, 'Movie imported successfully.', 201);
     }
@@ -28,7 +41,20 @@ class TmdbImportController extends Controller
         $request->validate(['tmdb_id' => ['required', 'integer']]);
 
         $language = $request->user()?->preferences['language'] ?? null;
-        $tvShow = $this->importService->importTvShow($request->integer('tmdb_id'), $language);
+        
+        try {
+            $tvShow = $this->importService->importTvShow($request->integer('tmdb_id'), $language);
+        } catch (\Illuminate\Http\Client\RequestException $e) {
+            if ($e->response->status() === 404) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'TMDB ID not found or is not a valid TV Show.'
+                ], 404);
+            }
+            throw $e;
+        }
+
+        \Illuminate\Support\Facades\Cache::forget('browse_rows');
 
         return $this->success($tvShow, 'TV show imported successfully.', 201);
     }
@@ -47,6 +73,8 @@ class TmdbImportController extends Controller
             $request->input('type'),
             $language
         );
+
+        \Illuminate\Support\Facades\Cache::forget('browse_rows');
 
         return $this->success($results, $results->count().' items imported.', 201);
     }
