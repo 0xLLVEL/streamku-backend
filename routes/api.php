@@ -102,11 +102,11 @@ Route::prefix('v1')->group(function () {
 
             // Admin Seasons
             Route::get('/seasons', [Admin\SeasonController::class, 'all'])->name('admin.seasons.all');
-            Route::apiResource('tv-shows.seasons', Admin\SeasonController::class)->names('admin.tv-shows.seasons')->parameters(['tv-shows' => 'tvShow']);
+            Route::apiResource('tv-shows.seasons', Admin\SeasonController::class)->names('admin.tv-shows.seasons')->parameters(['tv-shows' => 'tvShow', 'seasons' => 'season_number']);
 
             // Admin Episodes
             Route::get('/episodes', [Admin\EpisodeController::class, 'all'])->name('admin.episodes.all');
-            Route::apiResource('tv-shows.seasons.episodes', Admin\EpisodeController::class)->names('admin.tv-shows.seasons.episodes')->parameters(['tv-shows' => 'tvShow']);
+            Route::apiResource('tv-shows.seasons.episodes', Admin\EpisodeController::class)->names('admin.tv-shows.seasons.episodes')->parameters(['tv-shows' => 'tvShow', 'seasons' => 'season_number', 'episodes' => 'episode_number']);
 
             // Uploads (Chunked)
             Route::get('/uploads', [Admin\UploadController::class, 'index'])->name('admin.uploads.index');

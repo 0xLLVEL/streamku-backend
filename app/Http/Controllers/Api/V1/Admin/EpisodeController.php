@@ -19,15 +19,17 @@ class EpisodeController extends Controller
         ]);
     }
 
-    public function index(TvShow $tvShow, Season $season): JsonResponse
+    public function index(TvShow $tvShow, int $season_number): JsonResponse
     {
+        $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
         return response()->json([
             'data' => $season->episodes()->orderBy('episode_number')->get(),
         ]);
     }
 
-    public function store(StoreEpisodeData $data, TvShow $tvShow, Season $season): JsonResponse
+    public function store(StoreEpisodeData $data, TvShow $tvShow, int $season_number): JsonResponse
     {
+        $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
         $episode = $season->episodes()->create($data->toArray());
 
         $season->update(['episode_count' => $season->episodes()->count()]);
@@ -36,20 +38,26 @@ class EpisodeController extends Controller
         return $this->success($episode, null, 201);
     }
 
-    public function show(TvShow $tvShow, Season $season, Episode $episode): JsonResponse
+    public function show(TvShow $tvShow, int $season_number, int $episode_number): JsonResponse
     {
+        $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
+        $episode = $season->episodes()->where('episode_number', $episode_number)->firstOrFail();
         return $this->success($episode);
     }
 
-    public function update(UpdateEpisodeData $data, TvShow $tvShow, Season $season, Episode $episode): JsonResponse
+    public function update(UpdateEpisodeData $data, TvShow $tvShow, int $season_number, int $episode_number): JsonResponse
     {
+        $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
+        $episode = $season->episodes()->where('episode_number', $episode_number)->firstOrFail();
         $episode->update(array_filter($data->toArray(), fn ($v) => $v !== null));
 
         return $this->success($episode->fresh());
     }
 
-    public function destroy(TvShow $tvShow, Season $season, Episode $episode): JsonResponse
+    public function destroy(TvShow $tvShow, int $season_number, int $episode_number): JsonResponse
     {
+        $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
+        $episode = $season->episodes()->where('episode_number', $episode_number)->firstOrFail();
         $episode->delete();
 
         $season->update(['episode_count' => $season->episodes()->count()]);

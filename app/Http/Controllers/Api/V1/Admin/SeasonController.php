@@ -33,22 +33,25 @@ class SeasonController extends Controller
         return $this->success($season, null, 201);
     }
 
-    public function show(TvShow $tvShow, Season $season): JsonResponse
+    public function show(TvShow $tvShow, int $season_number): JsonResponse
     {
+        $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
         $season->load('episodes');
 
         return $this->success($season);
     }
 
-    public function update(UpdateSeasonData $data, TvShow $tvShow, Season $season): JsonResponse
+    public function update(UpdateSeasonData $data, TvShow $tvShow, int $season_number): JsonResponse
     {
+        $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
         $season->update(array_filter($data->toArray(), fn ($v) => $v !== null));
 
         return $this->success($season->fresh());
     }
 
-    public function destroy(TvShow $tvShow, Season $season): JsonResponse
+    public function destroy(TvShow $tvShow, int $season_number): JsonResponse
     {
+        $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
         $season->delete();
 
         $tvShow->update(['number_of_seasons' => $tvShow->seasons()->count()]);
