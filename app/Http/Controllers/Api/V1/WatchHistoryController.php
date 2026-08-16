@@ -34,6 +34,9 @@ class WatchHistoryController extends Controller
             return $this->error('Invalid watchable type.', 422);
         }
 
+        $ip = request()->ip();
+        $position = \Stevebauman\Location\Facades\Location::get($ip);
+
         $history = request()->user()->watchHistories()->updateOrCreate(
             [
                 'watchable_id' => $data->watchable_id,
@@ -44,6 +47,8 @@ class WatchHistoryController extends Controller
                 'duration_seconds' => $data->duration_seconds,
                 'completed' => $data->completed,
                 'last_watched_at' => now(),
+                'ip_address' => $ip,
+                'country' => $position ? $position->countryCode : null,
             ]
         );
 

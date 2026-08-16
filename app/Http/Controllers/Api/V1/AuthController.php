@@ -15,10 +15,15 @@ class AuthController extends Controller
 {
     public function register(RegisterData $data): JsonResponse
     {
+        $ip = request()->ip();
+        $position = \Stevebauman\Location\Facades\Location::get($ip);
+        
         $user = User::create([
             'name' => $data->name,
             'email' => $data->email,
             'password' => $data->password,
+            'ip_address' => $ip,
+            'country' => $position ? $position->countryCode : null,
         ]);
         $user->refresh();
 
@@ -41,6 +46,14 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('auth-token')->plainTextToken;
+
+        $ip = request()->ip();
+        $position = \Stevebauman\Location\Facades\Location::get($ip);
+        
+        $user->update([
+            'ip_address' => $ip,
+            'country' => $position ? $position->countryCode : null,
+        ]);
 
         return $this->success([
             'user' => UserData::from($user),

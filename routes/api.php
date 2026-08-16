@@ -84,6 +84,13 @@ Route::prefix('v1')->group(function () {
         // ── Admin ───────────────────────────────────────────
         Route::prefix('admin')->middleware(EnsureUserIsAdmin::class)->group(function () {
 
+            // Admin Analytics
+            Route::prefix('analytics')->group(function () {
+                Route::get('/overview', [Admin\AnalyticsController::class, 'overview'])->name('admin.analytics.overview');
+                Route::get('/top-titles', [Admin\AnalyticsController::class, 'topTitles'])->name('admin.analytics.top-titles');
+                Route::get('/engagement', [Admin\AnalyticsController::class, 'engagement'])->name('admin.analytics.engagement');
+            });
+
             // Admin Genres
             Route::apiResource('genres', Admin\GenreController::class)->names('admin.genres');
 
