@@ -19,11 +19,19 @@ class TmdbImportService
     {
         $data = $this->client->getMovie($tmdbId);
 
+        $baseSlug = Str::slug($data['title']);
+        $slug = $baseSlug;
+        $counter = 1;
+        while (Movie::where('slug', $slug)->where('tmdb_id', '!=', $tmdbId)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
         $movie = Movie::updateOrCreate(
             ['tmdb_id' => $tmdbId],
             [
                 'title' => $data['title'],
-                'slug' => Str::slug($data['title'].'-'.$tmdbId),
+                'slug' => $slug,
                 'overview' => $data['overview'] ?? null,
                 'tagline' => $data['tagline'] ?? null,
                 'poster_path' => $data['poster_path'] ?? null,
@@ -49,11 +57,19 @@ class TmdbImportService
     {
         $data = $this->client->getTvShow($tmdbId);
 
+        $baseSlug = Str::slug($data['name']);
+        $slug = $baseSlug;
+        $counter = 1;
+        while (TvShow::where('slug', $slug)->where('tmdb_id', '!=', $tmdbId)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
         $tvShow = TvShow::updateOrCreate(
             ['tmdb_id' => $tmdbId],
             [
                 'name' => $data['name'],
-                'slug' => Str::slug($data['name'].'-'.$tmdbId),
+                'slug' => $slug,
                 'overview' => $data['overview'] ?? null,
                 'tagline' => $data['tagline'] ?? null,
                 'poster_path' => $data['poster_path'] ?? null,
