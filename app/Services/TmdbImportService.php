@@ -46,7 +46,12 @@ class TmdbImportService
             ]
         );
 
-        $this->syncGenres($data['genres'] ?? [], $movie, 'movie');
+        $genres = $data['genres'] ?? [];
+        if (!empty($data['adult'])) {
+            $genres[] = ['id' => 99999, 'name' => 'Adult'];
+        }
+
+        $this->syncGenres($genres, $movie, 'movie');
         $this->syncCast($data['credits']['cast'] ?? [], $movie);
         $this->syncVideos($data['videos']['results'] ?? [], $movie);
 
@@ -88,7 +93,12 @@ class TmdbImportService
             ]
         );
 
-        $this->syncGenres($data['genres'] ?? [], $tvShow, 'tv');
+        $genres = $data['genres'] ?? [];
+        if (!empty($data['adult'])) {
+            $genres[] = ['id' => 99999, 'name' => 'Adult'];
+        }
+
+        $this->syncGenres($genres, $tvShow, 'tv');
         $this->syncCast($data['credits']['cast'] ?? [], $tvShow);
         $this->syncVideos($data['videos']['results'] ?? [], $tvShow);
 

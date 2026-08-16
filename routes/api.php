@@ -32,6 +32,7 @@ Route::prefix('v1')->group(function () {
         // Auth
         Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
         Route::get('/auth/me', [AuthController::class, 'me'])->name('auth.me');
+        Route::put('/auth/me', [AuthController::class, 'updateProfile'])->name('auth.update');
 
         // Browse
         Route::get('/browse', [BrowseController::class, 'index'])->name('browse');

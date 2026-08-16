@@ -19,15 +19,24 @@ class TmdbSearchController extends Controller
             'query' => ['required', 'string', 'min:1'],
             'page' => ['integer', 'min:1'],
             'type' => ['string', 'in:movie,tv,multi'],
+            'include_adult' => ['boolean'],
         ]);
 
         $query = $request->input('query');
         $page = $request->integer('page', 1);
+        
+        $userPrefAdult = $request->user()?->preferences['include_adult'] ?? null;
+        $fallback = $userPrefAdult !== null ? (bool) $userPrefAdult : false;
+
+        $params = [];
+        if ($request->boolean('include_adult', $fallback)) {
+            $params['include_adult'] = 'true';
+        }
 
         $results = match ($request->input('type', 'multi')) {
-            'movie' => $this->client->searchMovies($query, $page),
-            'tv' => $this->client->searchTv($query, $page),
-            default => $this->client->searchMulti($query, $page),
+            'movie' => $this->client->searchMovies($query, $page, $params),
+            'tv' => $this->client->searchTv($query, $page, $params),
+            default => $this->client->searchMulti($query, $page, $params),
         };
 
         return $this->success($results);

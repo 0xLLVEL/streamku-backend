@@ -12,6 +12,7 @@ class UserData extends Data
         public string $name,
         public string $email,
         public bool $is_admin = false,
+        public ?array $preferences = null,
         public ?string $created_at = null,
     ) {}
 }

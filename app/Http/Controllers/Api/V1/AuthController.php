@@ -61,4 +61,26 @@ class AuthController extends Controller
             'user' => UserData::from(request()->user()),
         ]);
     }
+
+    public function updateProfile(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => ['sometimes', 'string', 'max:255'],
+            'preferences' => ['sometimes', 'array'],
+        ]);
+
+        $user = $request->user();
+
+        if (isset($validated['preferences'])) {
+            $user->preferences = array_merge((array) $user->preferences, $validated['preferences']);
+            unset($validated['preferences']);
+        }
+
+        $user->fill($validated);
+        $user->save();
+
+        return $this->success([
+            'user' => UserData::from($user),
+        ], 'Profile updated successfully.');
+    }
 }

@@ -70,12 +70,13 @@ class TmdbClient
     }
 
     /**
+     * @param  array<string, mixed>  $params
      * @return array<string, mixed>
      */
-    public function searchMulti(string $query, int $page = 1): array
+    public function searchMulti(string $query, int $page = 1, array $params = []): array
     {
         return $this->http
-            ->get('/search/multi', ['query' => $query, 'page' => $page])
+            ->get('/search/multi', array_merge(['query' => $query, 'page' => $page], $params))
             ->json();
     }
 

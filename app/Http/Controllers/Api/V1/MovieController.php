@@ -18,7 +18,7 @@ class MovieController extends Controller
             $query = Movie::query();
 
             if ($request->filled('genre')) {
-                $query->whereHas('genres', fn ($q) => $q->where('slug', $request->input('genre')));
+                $query->whereHas('genres', fn($q) => $q->where('slug', $request->input('genre')));
             }
 
             if ($request->filled('year')) {
