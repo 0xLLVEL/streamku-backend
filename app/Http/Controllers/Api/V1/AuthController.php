@@ -67,6 +67,9 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
             'preferences' => ['sometimes', 'array'],
+            'preferences.include_adult' => ['sometimes', 'boolean'],
+            'preferences.dark_mode' => ['sometimes', 'boolean'],
+            'preferences.language' => ['sometimes', 'string', 'max:10'],
         ]);
 
         $user = $request->user();

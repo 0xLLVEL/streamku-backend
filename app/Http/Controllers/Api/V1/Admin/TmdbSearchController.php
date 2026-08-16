@@ -33,6 +33,11 @@ class TmdbSearchController extends Controller
             $params['include_adult'] = 'true';
         }
 
+        $userPrefLanguage = $request->user()?->preferences['language'] ?? null;
+        if ($userPrefLanguage) {
+            $params['language'] = $userPrefLanguage;
+        }
+
         $results = match ($request->input('type', 'multi')) {
             'movie' => $this->client->searchMovies($query, $page, $params),
             'tv' => $this->client->searchTv($query, $page, $params),
