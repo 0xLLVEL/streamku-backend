@@ -12,6 +12,13 @@ use Illuminate\Http\JsonResponse;
 
 class EpisodeController extends Controller
 {
+    public function all(): JsonResponse
+    {
+        return response()->json([
+            'data' => Episode::with('season.tvShow')->orderByDesc('created_at')->paginate(20),
+        ]);
+    }
+
     public function index(TvShow $tvShow, Season $season): JsonResponse
     {
         return response()->json([
