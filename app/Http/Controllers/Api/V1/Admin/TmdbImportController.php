@@ -17,7 +17,8 @@ class TmdbImportController extends Controller
     {
         $request->validate(['tmdb_id' => ['required', 'integer']]);
 
-        $movie = $this->importService->importMovie($request->integer('tmdb_id'));
+        $language = $request->user()?->preferences['language'] ?? null;
+        $movie = $this->importService->importMovie($request->integer('tmdb_id'), $language);
 
         return $this->success($movie, 'Movie imported successfully.', 201);
     }
@@ -26,7 +27,8 @@ class TmdbImportController extends Controller
     {
         $request->validate(['tmdb_id' => ['required', 'integer']]);
 
-        $tvShow = $this->importService->importTvShow($request->integer('tmdb_id'));
+        $language = $request->user()?->preferences['language'] ?? null;
+        $tvShow = $this->importService->importTvShow($request->integer('tmdb_id'), $language);
 
         return $this->success($tvShow, 'TV show imported successfully.', 201);
     }
@@ -39,17 +41,20 @@ class TmdbImportController extends Controller
             'type' => ['required', 'string', 'in:movie,tv'],
         ]);
 
+        $language = $request->user()?->preferences['language'] ?? null;
         $results = $this->importService->importBulk(
             $request->input('tmdb_ids'),
-            $request->input('type')
+            $request->input('type'),
+            $language
         );
 
         return $this->success($results, $results->count().' items imported.', 201);
     }
 
-    public function syncGenres(): JsonResponse
+    public function syncGenres(Request $request): JsonResponse
     {
-        $this->importService->syncAllGenres();
+        $language = $request->user()?->preferences['language'] ?? null;
+        $this->importService->syncAllGenres($language);
 
         return $this->success(null, 'Genres synced from TMDB.');
     }

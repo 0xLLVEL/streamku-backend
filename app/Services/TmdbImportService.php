@@ -15,9 +15,10 @@ class TmdbImportService
         private TmdbClient $client,
     ) {}
 
-    public function importMovie(int $tmdbId): Movie
+    public function importMovie(int $tmdbId, ?string $language = null): Movie
     {
-        $data = $this->client->getMovie($tmdbId);
+        $params = $language ? ['language' => $language] : [];
+        $data = $this->client->getMovie($tmdbId, $params);
 
         $baseSlug = Str::slug($data['title']);
         $slug = $baseSlug;
@@ -58,9 +59,10 @@ class TmdbImportService
         return $movie->fresh(['genres', 'cast', 'videos']);
     }
 
-    public function importTvShow(int $tmdbId): TvShow
+    public function importTvShow(int $tmdbId, ?string $language = null): TvShow
     {
-        $data = $this->client->getTvShow($tmdbId);
+        $params = $language ? ['language' => $language] : [];
+        $data = $this->client->getTvShow($tmdbId, $params);
 
         $baseSlug = Str::slug($data['name']);
         $slug = $baseSlug;
@@ -103,15 +105,16 @@ class TmdbImportService
         $this->syncVideos($data['videos']['results'] ?? [], $tvShow);
 
         foreach ($data['seasons'] ?? [] as $seasonData) {
-            $this->importSeason($tvShow, $seasonData['season_number']);
+            $this->importSeason($tvShow, $seasonData['season_number'], $language);
         }
 
         return $tvShow->fresh(['genres', 'cast', 'videos', 'seasons.episodes']);
     }
 
-    public function importSeason(TvShow $tvShow, int $seasonNumber): Season
+    public function importSeason(TvShow $tvShow, int $seasonNumber, ?string $language = null): Season
     {
-        $data = $this->client->getTvSeason($tvShow->tmdb_id, $seasonNumber);
+        $params = $language ? ['language' => $language] : [];
+        $data = $this->client->getTvSeason($tvShow->tmdb_id, $seasonNumber, $params);
 
         $season = Season::updateOrCreate(
             ['tmdb_id' => $data['id']],
@@ -145,10 +148,11 @@ class TmdbImportService
         return $season->fresh('episodes');
     }
 
-    public function syncAllGenres(): void
+    public function syncAllGenres(?string $language = null): void
     {
+        $params = $language ? ['language' => $language] : [];
         foreach (['movie', 'tv'] as $type) {
-            $data = $this->client->getGenres($type);
+            $data = $this->client->getGenres($type, $params);
 
             foreach ($data['genres'] ?? [] as $genre) {
                 Genre::updateOrCreate(
@@ -166,15 +170,15 @@ class TmdbImportService
      * @param  int[]  $tmdbIds
      * @return Collection<int, Movie|TvShow>
      */
-    public function importBulk(array $tmdbIds, string $type = 'movie'): Collection
+    public function importBulk(array $tmdbIds, string $type = 'movie', ?string $language = null): Collection
     {
         $results = collect();
 
         foreach ($tmdbIds as $tmdbId) {
             $results->push(
                 $type === 'movie'
-                    ? $this->importMovie($tmdbId)
-                    : $this->importTvShow($tmdbId)
+                    ? $this->importMovie($tmdbId, $language)
+                    : $this->importTvShow($tmdbId, $language)
             );
         }
 

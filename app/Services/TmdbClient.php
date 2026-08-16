@@ -20,30 +20,30 @@ class TmdbClient
     /**
      * @return array<string, mixed>
      */
-    public function getMovie(int $id): array
+    public function getMovie(int $id, array $params = []): array
     {
         return $this->http
-            ->get("/movie/{$id}", ['append_to_response' => 'credits,videos'])
+            ->get("/movie/{$id}", array_merge(['append_to_response' => 'credits,videos'], $params))
             ->json();
     }
 
     /**
      * @return array<string, mixed>
      */
-    public function getTvShow(int $id): array
+    public function getTvShow(int $id, array $params = []): array
     {
         return $this->http
-            ->get("/tv/{$id}", ['append_to_response' => 'credits,videos'])
+            ->get("/tv/{$id}", array_merge(['append_to_response' => 'credits,videos'], $params))
             ->json();
     }
 
     /**
      * @return array<string, mixed>
      */
-    public function getTvSeason(int $tvId, int $seasonNumber): array
+    public function getTvSeason(int $tvId, int $seasonNumber, array $params = []): array
     {
         return $this->http
-            ->get("/tv/{$tvId}/season/{$seasonNumber}")
+            ->get("/tv/{$tvId}/season/{$seasonNumber}", $params)
             ->json();
     }
 
@@ -115,10 +115,10 @@ class TmdbClient
     /**
      * @return array<string, mixed>
      */
-    public function getGenres(string $type = 'movie'): array
+    public function getGenres(string $type = 'movie', array $params = []): array
     {
         return $this->http
-            ->get("/genre/{$type}/list")
+            ->get("/genre/{$type}/list", $params)
             ->json();
     }
 
