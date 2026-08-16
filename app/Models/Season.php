@@ -18,6 +18,13 @@ class Season extends Model
     /** @use HasFactory<SeasonFactory> */
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        static::deleting(function (Season $season) {
+            $season->episodes->each->delete();
+        });
+    }
+
     /**
      * @return array<string, string>
      */

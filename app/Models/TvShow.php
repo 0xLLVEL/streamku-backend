@@ -22,6 +22,18 @@ class TvShow extends Model
     /** @use HasFactory<TvShowFactory> */
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        static::deleting(function (TvShow $tvShow) {
+            $tvShow->seasons->each->delete();
+            $tvShow->cast()->delete();
+            $tvShow->videos()->delete();
+            $tvShow->reviews()->delete();
+            $tvShow->watchlists()->delete();
+            $tvShow->genres()->detach();
+        });
+    }
+
     /**
      * @return array<string, string>
      */

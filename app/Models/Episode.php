@@ -19,6 +19,13 @@ class Episode extends Model
     /** @use HasFactory<EpisodeFactory> */
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        static::deleting(function (Episode $episode) {
+            $episode->media()->delete();
+        });
+    }
+
     /**
      * @return array<string, string>
      */

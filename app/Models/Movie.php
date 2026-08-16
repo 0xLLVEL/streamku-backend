@@ -20,6 +20,18 @@ class Movie extends Model
     /** @use HasFactory<MovieFactory> */
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        static::deleting(function (Movie $movie) {
+            $movie->cast()->delete();
+            $movie->videos()->delete();
+            $movie->reviews()->delete();
+            $movie->watchlists()->delete();
+            $movie->media()->delete();
+            $movie->genres()->detach();
+        });
+    }
+
     /**
      * @return array<string, string>
      */
