@@ -1,0 +1,15 @@
+meta {
+  name: Tv Shows Recommendations
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/tv-shows/{tvShow:slug}/recommendations
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}

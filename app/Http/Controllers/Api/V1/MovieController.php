@@ -54,4 +54,19 @@ class MovieController extends Controller
 
         return $this->success($data);
     }
+
+    public function recommendations(Movie $movie): JsonResponse
+    {
+        $genreIds = $movie->genres()->pluck('genres.id');
+
+        $recommendations = Movie::where('id', '!=', $movie->id)
+            ->whereHas('genres', function ($query) use ($genreIds) {
+                $query->whereIn('genres.id', $genreIds);
+            })
+            ->orderByDesc('popularity')
+            ->limit(10)
+            ->get();
+
+        return $this->success(['data' => $recommendations]);
+    }
 }

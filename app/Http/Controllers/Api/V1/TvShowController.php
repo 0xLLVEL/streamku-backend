@@ -57,4 +57,19 @@ class TvShowController extends Controller
 
         return $this->success(\App\Data\EpisodeData::from($episode));
     }
+
+    public function recommendations(TvShow $tvShow): JsonResponse
+    {
+        $genreIds = $tvShow->genres()->pluck('genres.id');
+
+        $recommendations = TvShow::where('id', '!=', $tvShow->id)
+            ->whereHas('genres', function ($query) use ($genreIds) {
+                $query->whereIn('genres.id', $genreIds);
+            })
+            ->orderByDesc('popularity')
+            ->limit(10)
+            ->get();
+
+        return $this->success(['data' => $recommendations]);
+    }
 }

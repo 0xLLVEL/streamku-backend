@@ -1,0 +1,15 @@
+meta {
+  name: Movies Recommendations
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/movies/{movie:slug}/recommendations
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}
