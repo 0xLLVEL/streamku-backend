@@ -23,7 +23,7 @@ class TmdbClient
     public function getMovie(int $id, array $params = []): array
     {
         return $this->http
-            ->get("/movie/{$id}", array_merge(['append_to_response' => 'credits,videos'], $params))
+            ->get("/movie/{$id}", array_merge(['append_to_response' => 'credits,videos,images'], $params))
             ->json();
     }
 
@@ -33,7 +33,7 @@ class TmdbClient
     public function getTvShow(int $id, array $params = []): array
     {
         return $this->http
-            ->get("/tv/{$id}", array_merge(['append_to_response' => 'credits,videos'], $params))
+            ->get("/tv/{$id}", array_merge(['append_to_response' => 'credits,videos,images'], $params))
             ->json();
     }
 

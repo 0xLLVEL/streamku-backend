@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
     'tmdb_id', 'title', 'slug', 'overview', 'tagline',
     'poster_path', 'backdrop_path', 'release_date', 'runtime',
     'vote_average', 'vote_count', 'popularity',
-    'original_language', 'status', 'is_featured',
+    'original_language', 'status', 'is_featured', 'images',
 ])]
 class Movie extends Model
 {
@@ -42,6 +42,7 @@ class Movie extends Model
             'is_featured' => 'boolean',
             'vote_average' => 'decimal:1',
             'popularity' => 'decimal:3',
+            'images' => 'array',
         ];
     }
 

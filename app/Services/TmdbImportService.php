@@ -44,6 +44,7 @@ class TmdbImportService
                 'popularity' => $data['popularity'] ?? 0,
                 'original_language' => $data['original_language'] ?? null,
                 'status' => $data['status'] ?? null,
+                'images' => $data['images'] ?? null,
             ]
         );
 
@@ -92,6 +93,7 @@ class TmdbImportService
                 'original_language' => $data['original_language'] ?? null,
                 'status' => $data['status'] ?? null,
                 'type' => $data['type'] ?? null,
+                'images' => $data['images'] ?? null,
             ]
         );
 

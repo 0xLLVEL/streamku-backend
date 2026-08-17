@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
     'poster_path', 'backdrop_path', 'first_air_date', 'last_air_date',
     'number_of_seasons', 'number_of_episodes', 'episode_run_time',
     'vote_average', 'vote_count', 'popularity',
-    'original_language', 'status', 'type', 'is_featured',
+    'original_language', 'status', 'type', 'is_featured', 'images',
 ])]
 class TvShow extends Model
 {
@@ -25,12 +25,13 @@ class TvShow extends Model
     protected static function booted(): void
     {
         static::deleting(function (TvShow $tvShow) {
-            $tvShow->seasons->each->delete();
             $tvShow->cast()->delete();
             $tvShow->videos()->delete();
             $tvShow->reviews()->delete();
             $tvShow->watchlists()->delete();
+            $tvShow->media()->delete();
             $tvShow->genres()->detach();
+            $tvShow->seasons()->each(fn ($season) => $season->delete());
         });
     }
 
@@ -45,6 +46,7 @@ class TvShow extends Model
             'is_featured' => 'boolean',
             'vote_average' => 'decimal:1',
             'popularity' => 'decimal:3',
+            'images' => 'array',
         ];
     }
 
@@ -94,5 +96,13 @@ class TvShow extends Model
     public function watchlists(): MorphMany
     {
         return $this->morphMany(Watchlist::class, 'watchlistable');
+    }
+
+    /**
+     * @return MorphMany<Media, $this>
+     */
+    public function media(): MorphMany
+    {
+        return $this->morphMany(Media::class, 'mediable');
     }
 }
