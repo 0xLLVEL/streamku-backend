@@ -26,6 +26,11 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/register', [AuthController::class, 'register'])->name('auth.register');
     Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
 
+    // ── Media & Streaming (public) ──────────────────────────
+    Route::get('/movies/{movie:slug}/media', [MediaStreamController::class, 'movieMedia'])->name('movies.media');
+    Route::get('/tv-shows/{tvShow:slug}/seasons/{season:season_number}/episodes/{episode:episode_number}/media', [MediaStreamController::class, 'episodeMedia'])->name('episodes.media');
+    Route::get('/media/{media}/stream', [MediaStreamController::class, 'stream'])->name('media.stream');
+
     // ── Authenticated ───────────────────────────────────────
     Route::middleware('auth:sanctum')->group(function () {
 
@@ -71,10 +76,7 @@ Route::prefix('v1')->group(function () {
         Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
         Route::get('/reviews/{type}/{id}', [ReviewController::class, 'forTitle'])->name('reviews.for-title');
 
-        // Media & Streaming
-        Route::get('/movies/{movie:slug}/media', [MediaStreamController::class, 'movieMedia'])->name('movies.media');
-        Route::get('/tv-shows/{tvShow:slug}/seasons/{season:season_number}/episodes/{episode:episode_number}/media', [MediaStreamController::class, 'episodeMedia'])->name('episodes.media');
-        Route::get('/media/{media}/stream', [MediaStreamController::class, 'stream'])->name('media.stream');
+
 
         // Watch Parties
         Route::post('/watch-parties', [WatchPartyController::class, 'store'])->name('watch-parties.store');

@@ -20,6 +20,7 @@ class MediaData extends Data
         public ?int $width,
         public ?int $height,
         public bool $is_primary,
+        public ?array $metadata = null,
         public ?string $created_at = null,
     ) {}
 }

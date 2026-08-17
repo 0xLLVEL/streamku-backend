@@ -32,7 +32,7 @@ class InitiateUploadData extends Data
             'mediable_type' => ['required', 'string', 'in:movie,episode'],
             'type' => ['required', 'string', 'in:video,image,subtitle'],
             'quality_id' => ['nullable', 'integer', 'exists:qualities,id'],
-            'collection' => ['string', 'in:default,poster,backdrop,thumbnail,stream,subtitles'],
+            'collection' => ['string', 'in:default,poster,backdrop,thumbnail,stream,subtitles,video'],
             'metadata' => ['nullable', 'array'],
             'metadata.language' => ['nullable', 'string', 'max:50'],
             'metadata.label' => ['nullable', 'string', 'max:100'],

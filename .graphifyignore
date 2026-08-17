@@ -1,0 +1,7 @@
+# .graphifyignore
+node_modules/
+vendor/
+.agents/
+client/node_modules/
+client/.next/
+bruno/

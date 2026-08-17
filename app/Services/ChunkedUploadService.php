@@ -152,23 +152,25 @@ class ChunkedUploadService
             }
         }
 
-        $media = Media::create([
-            'mediable_id' => $upload->mediable_id,
-            'mediable_type' => $upload->mediable_type,
-            'quality_id' => $qualityId,
-            'type' => $upload->type,
-            'collection' => $upload->collection,
-            'disk' => $upload->disk,
-            'path' => $finalPath,
-            'original_filename' => $upload->filename,
-            'mime_type' => $upload->mime_type,
-            'size' => $upload->total_size,
-            'width' => $width,
-            'height' => $height,
-            'duration' => $duration,
-            'is_primary' => true,
-            'metadata' => $upload->metadata,
-        ]);
+        $media = Media::unguarded(function () use ($upload, $qualityId, $finalPath, $width, $height, $duration) {
+            return Media::create([
+                'mediable_id' => $upload->mediable_id,
+                'mediable_type' => $upload->mediable_type,
+                'quality_id' => $qualityId,
+                'type' => $upload->type,
+                'collection' => $upload->collection,
+                'disk' => $upload->disk,
+                'path' => $finalPath,
+                'original_filename' => $upload->filename,
+                'mime_type' => $upload->mime_type,
+                'size' => $upload->total_size,
+                'width' => $width,
+                'height' => $height,
+                'duration' => $duration,
+                'is_primary' => true,
+                'metadata' => $upload->metadata,
+            ]);
+        });
 
         $upload->update([
             'status' => 'completed',
