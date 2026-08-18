@@ -126,7 +126,19 @@ class ChunkedUploadService
             'subtitle' => 'subtitles',
             default => 'images',
         };
-        $finalPath = "media/{$subDir}/".now()->format('Y/m')."/{$filename}";
+        
+        $folderName = now()->format('Y/m'); // fallback
+        $mediable = $upload->mediable;
+        
+        if ($mediable instanceof \App\Models\Movie) {
+            $folderName = $mediable->slug ?? Str::slug($mediable->title);
+        } elseif ($mediable instanceof \App\Models\Episode) {
+            $mediable->loadMissing('season.tvShow');
+            $tvShowSlug = $mediable->season->tvShow->slug ?? Str::slug($mediable->season->tvShow->name);
+            $folderName = "{$tvShowSlug}/season-{$mediable->season->season_number}";
+        }
+
+        $finalPath = "media/{$subDir}/{$folderName}/{$filename}";
 
         $this->mergeChunks($upload, $finalPath);
 
