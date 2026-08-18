@@ -10,6 +10,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "arthurpatriot/laravel-tus": "^1.4",
         "laravel/framework": "^13.17",
         "laravel/pulse": "^1.8",
         "laravel/reverb": "^1.0",

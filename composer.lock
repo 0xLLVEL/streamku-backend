@@ -4,8 +4,86 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c6632ba67efd605887fc1549abcb4909",
+    "content-hash": "0a8ad34e3d6779c92a3c4ee0becb43a2",
     "packages": [
+        {
+            "name": "arthurpatriot/laravel-tus",
+            "version": "v1.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ArthurPatriot/laravel-tus.git",
+                "reference": "b373e5666498d1350db58813d092b540853d8b54"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ArthurPatriot/laravel-tus/zipball/b373e5666498d1350db58813d092b540853d8b54",
+                "reference": "b373e5666498d1350db58813d092b540853d8b54",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^11.0||^12.0||^13.0",
+                "php": "^8.3",
+                "spatie/laravel-package-tools": "^1.16"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.0",
+                "laravel/pint": "^1.14",
+                "nunomaduro/collision": "^8.8",
+                "orchestra/testbench": "^9.0.0||^10.0.0||^11.0.0",
+                "pestphp/pest": "^4.0",
+                "pestphp/pest-plugin-arch": "^4.0",
+                "pestphp/pest-plugin-laravel": "^4.0",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Tus": "ArthurPatriot\\Tus\\Facades\\Tus"
+                    },
+                    "providers": [
+                        "ArthurPatriot\\Tus\\TusServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "ArthurPatriot\\Tus\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Artur Khylskyi",
+                    "email": "arthur.patriot@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Laravel package for handling resumable file uploads with tus protocol and native Uppy.js support without additional tus servers",
+            "homepage": "https://github.com/arthurpatriot/laravel-tus",
+            "keywords": [
+                "arthurpatriot",
+                "laravel",
+                "laravel-tus",
+                "tus"
+            ],
+            "support": {
+                "issues": "https://github.com/ArthurPatriot/laravel-tus/issues",
+                "source": "https://github.com/ArthurPatriot/laravel-tus/tree/v1.4.0"
+            },
+            "funding": [
+                {
+                    "url": "https://www.buymeacoffee.com/ArthurPatriot",
+                    "type": "buy_me_a_coffee"
+                }
+            ],
+            "time": "2026-04-15T14:55:06+00:00"
+        },
         {
             "name": "brick/math",
             "version": "0.18.0",

@@ -19,6 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Support\Facades\Event::listen(
+            \ArthurPatriot\Tus\Events\FileUploadFinished::class,
+            \App\Listeners\ProcessTusUploadCompleted::class,
+        );
     }
 }
