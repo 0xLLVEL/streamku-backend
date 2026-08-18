@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 
 class ChunkedUploadService
 {
-    private const DEFAULT_CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
+    private const DEFAULT_CHUNK_SIZE = 50 * 1024 * 1024; // 50MB
 
     /**
      * @param  array{

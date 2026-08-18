@@ -14,7 +14,7 @@ class InitiateUploadData extends Data
         public int $mediable_id,
         public string $mediable_type,
         public string $type,
-        public ?int $quality_id = null,
+        public int $quality_id,
         public string $collection = 'default',
         public ?array $metadata = null,
     ) {}
@@ -31,7 +31,7 @@ class InitiateUploadData extends Data
             'mediable_id' => ['required', 'integer'],
             'mediable_type' => ['required', 'string', 'in:movie,episode'],
             'type' => ['required', 'string', 'in:video,image,subtitle'],
-            'quality_id' => ['nullable', 'integer', 'exists:qualities,id'],
+            'quality_id' => ['required', 'integer', 'exists:qualities,id'],
             'collection' => ['string', 'in:default,poster,backdrop,thumbnail,stream,subtitles,video'],
             'metadata' => ['nullable', 'array'],
             'metadata.language' => ['nullable', 'string', 'max:50'],
