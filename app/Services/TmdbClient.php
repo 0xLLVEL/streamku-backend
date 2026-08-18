@@ -22,8 +22,16 @@ class TmdbClient
      */
     public function getMovie(int $id, array $params = []): array
     {
+        $imageLangs = 'en,null';
+        if (isset($params['language'])) {
+            $imageLangs .= ',' . $params['language'];
+        }
+
         return $this->http
-            ->get("/movie/{$id}", array_merge(['append_to_response' => 'credits,videos,images'], $params))
+            ->get("/movie/{$id}", array_merge([
+                'append_to_response' => 'credits,videos,images',
+                'include_image_language' => $imageLangs
+            ], $params))
             ->json();
     }
 
@@ -32,8 +40,16 @@ class TmdbClient
      */
     public function getTvShow(int $id, array $params = []): array
     {
+        $imageLangs = 'en,null';
+        if (isset($params['language'])) {
+            $imageLangs .= ',' . $params['language'];
+        }
+
         return $this->http
-            ->get("/tv/{$id}", array_merge(['append_to_response' => 'credits,videos,images'], $params))
+            ->get("/tv/{$id}", array_merge([
+                'append_to_response' => 'credits,videos,images',
+                'include_image_language' => $imageLangs
+            ], $params))
             ->json();
     }
 

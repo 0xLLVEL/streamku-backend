@@ -8,13 +8,28 @@ use App\Data\Requests\UpdateGenreData;
 use App\Http\Controllers\Controller;
 use App\Models\Genre;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class GenreController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json(Genre::orderBy('name')->paginate(50));
+        $query = Genre::query();
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%'.$request->input('search').'%');
+        }
+
+        $allowedSorts = ['name', 'slug', 'id'];
+        $sort = in_array($request->input('sort'), $allowedSorts) ? $request->input('sort') : 'name';
+        $direction = $request->input('direction') === 'desc' ? 'desc' : 'asc';
+
+        $query->orderBy($sort, $direction);
+
+        $perPage = $request->input('per_page', 20);
+
+        return response()->json($query->paginate($perPage)->toArray());
     }
 
     public function store(StoreGenreData $data): JsonResponse

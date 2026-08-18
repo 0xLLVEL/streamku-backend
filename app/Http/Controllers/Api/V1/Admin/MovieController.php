@@ -14,13 +14,35 @@ class MovieController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Movie::query();
+        $query = Movie::with('genres');
 
         if ($request->filled('search')) {
             $query->where('title', 'like', '%'.$request->input('search').'%');
         }
 
-        return $this->success($query->orderByDesc('created_at')->paginate(20)->toArray());
+        if ($request->filled('genre')) {
+            $query->whereHas('genres', function ($q) use ($request) {
+                $q->where('genres.id', $request->input('genre'));
+            });
+        }
+
+        if ($request->filled('year')) {
+            $query->whereYear('release_date', $request->input('year'));
+        }
+
+        if ($request->filled('language')) {
+            $query->where('original_language', $request->input('language'));
+        }
+
+        $allowedSorts = ['title', 'release_date', 'views', 'created_at'];
+        $sort = in_array($request->input('sort'), $allowedSorts) ? $request->input('sort') : 'created_at';
+        $direction = $request->input('direction') === 'asc' ? 'asc' : 'desc';
+
+        $query->orderBy($sort, $direction);
+
+        $perPage = $request->input('per_page', 20);
+
+        return $this->success($query->paginate($perPage)->toArray());
     }
 
     public function store(StoreMovieData $data): JsonResponse

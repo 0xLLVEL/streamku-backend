@@ -58,6 +58,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/genres', [GenreController::class, 'index'])->name('genres.index');
         Route::get('/genres/{genre:slug}', [GenreController::class, 'show'])->name('genres.show');
 
+        // Cast
+        Route::get('/cast', [Admin\CastController::class, 'index'])->name('cast.index');
+
         // Watchlist
         Route::get('/watchlist', [WatchlistController::class, 'index'])->name('watchlist.index');
         Route::post('/watchlist', [WatchlistController::class, 'store'])->name('watchlist.store');
@@ -105,9 +108,10 @@ Route::prefix('v1')->group(function () {
             });
 
             // Admin Genres
-            Route::apiResource('genres', Admin\GenreController::class)->names('admin.genres');
+            Route::apiResource('genres', Admin\GenreController::class)->names('admin.genres')->parameters(['genres' => 'genre:slug'])->except(['show']);
 
-            // Admin Movies
+            // Admin Cast (Global)
+            Route::apiResource('cast', Admin\CastController::class)->names('admin.cast')->except(['show']);
             Route::apiResource('movies', Admin\MovieController::class)->names('admin.movies');
             Route::patch('/movies/{movie}/feature', [Admin\MovieController::class, 'toggleFeatured'])->name('admin.movies.feature');
 
