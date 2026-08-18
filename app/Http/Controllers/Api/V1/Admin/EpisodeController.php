@@ -42,6 +42,7 @@ class EpisodeController extends Controller
     {
         $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
         $episode = $season->episodes()->where('episode_number', $episode_number)->firstOrFail();
+        $episode->load('media.quality');
         return $this->success($episode);
     }
 
