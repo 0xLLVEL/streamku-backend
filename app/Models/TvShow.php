@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 #[Fillable([
-    'tmdb_id', 'name', 'slug', 'overview', 'tagline',
+    'tmdb_id', 'name', 'slug', 'overview', 'tagline', 'trailer_url',
     'poster_path', 'backdrop_path', 'first_air_date', 'last_air_date',
     'number_of_seasons', 'number_of_episodes', 'episode_run_time',
     'vote_average', 'vote_count', 'popularity',

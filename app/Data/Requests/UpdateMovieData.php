@@ -18,6 +18,7 @@ class UpdateMovieData extends Data
         public ?float $vote_average = null,
         public ?string $original_language = null,
         public ?string $status = null,
+        public ?string $trailer_url = null,
         public ?bool $is_featured = null,
         /** @var int[]|null */
         public ?array $genre_ids = null,
@@ -39,6 +40,7 @@ class UpdateMovieData extends Data
             'vote_average' => ['nullable', 'numeric', 'min:0', 'max:10'],
             'original_language' => ['nullable', 'string', 'max:10'],
             'status' => ['nullable', 'string', 'max:50'],
+            'trailer_url' => ['nullable', 'string', 'max:500'],
             'is_featured' => ['nullable', 'boolean'],
             'genre_ids' => ['nullable', 'array'],
             'genre_ids.*' => ['integer', 'exists:genres,id'],

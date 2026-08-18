@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 #[Fillable([
-    'tmdb_id', 'title', 'slug', 'overview', 'tagline',
+    'tmdb_id', 'title', 'slug', 'overview', 'tagline', 'trailer_url',
     'poster_path', 'backdrop_path', 'release_date', 'runtime',
     'vote_average', 'vote_count', 'popularity',
     'original_language', 'status', 'is_featured', 'images',

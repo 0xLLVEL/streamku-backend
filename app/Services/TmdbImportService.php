@@ -28,6 +28,15 @@ class TmdbImportService
             $counter++;
         }
 
+        $trailerUrl = null;
+        if (!empty($data['videos']['results'])) {
+            $trailer = collect($data['videos']['results'])->firstWhere('type', 'Trailer') 
+                       ?? collect($data['videos']['results'])->first();
+            if ($trailer && $trailer['site'] === 'YouTube') {
+                $trailerUrl = 'https://www.youtube.com/watch?v=' . $trailer['key'];
+            }
+        }
+
         $movie = Movie::updateOrCreate(
             ['tmdb_id' => $tmdbId],
             [
@@ -35,6 +44,7 @@ class TmdbImportService
                 'slug' => $slug,
                 'overview' => $data['overview'] ?? null,
                 'tagline' => $data['tagline'] ?? null,
+                'trailer_url' => $trailerUrl,
                 'poster_path' => $data['poster_path'] ?? null,
                 'backdrop_path' => $data['backdrop_path'] ?? null,
                 'release_date' => $data['release_date'] ?: null,
@@ -55,9 +65,8 @@ class TmdbImportService
 
         $this->syncGenres($genres, $movie, 'movie');
         $this->syncCast($data['credits']['cast'] ?? [], $movie);
-        $this->syncVideos($data['videos']['results'] ?? [], $movie);
 
-        return $movie->fresh(['genres', 'cast', 'videos']);
+        return $movie->fresh(['genres', 'cast']);
     }
 
     public function importTvShow(int $tmdbId, ?string $language = null): TvShow
@@ -73,6 +82,15 @@ class TmdbImportService
             $counter++;
         }
 
+        $trailerUrl = null;
+        if (!empty($data['videos']['results'])) {
+            $trailer = collect($data['videos']['results'])->firstWhere('type', 'Trailer') 
+                       ?? collect($data['videos']['results'])->first();
+            if ($trailer && $trailer['site'] === 'YouTube') {
+                $trailerUrl = 'https://www.youtube.com/watch?v=' . $trailer['key'];
+            }
+        }
+
         $tvShow = TvShow::updateOrCreate(
             ['tmdb_id' => $tmdbId],
             [
@@ -80,6 +98,7 @@ class TmdbImportService
                 'slug' => $slug,
                 'overview' => $data['overview'] ?? null,
                 'tagline' => $data['tagline'] ?? null,
+                'trailer_url' => $trailerUrl,
                 'poster_path' => $data['poster_path'] ?? null,
                 'backdrop_path' => $data['backdrop_path'] ?? null,
                 'first_air_date' => $data['first_air_date'] ?: null,
@@ -104,13 +123,12 @@ class TmdbImportService
 
         $this->syncGenres($genres, $tvShow, 'tv');
         $this->syncCast($data['credits']['cast'] ?? [], $tvShow);
-        $this->syncVideos($data['videos']['results'] ?? [], $tvShow);
 
         foreach ($data['seasons'] ?? [] as $seasonData) {
             $this->importSeason($tvShow, $seasonData['season_number'], $language);
         }
 
-        return $tvShow->fresh(['genres', 'cast', 'videos', 'seasons.episodes']);
+        return $tvShow->fresh(['genres', 'cast', 'seasons.episodes']);
     }
 
     public function importSeason(TvShow $tvShow, int $seasonNumber, ?string $language = null): Season
@@ -234,16 +252,6 @@ class TmdbImportService
     private function syncVideos(array $videos, Movie|TvShow $model): void
     {
         $model->videos()->delete();
-
-        foreach ($videos as $video) {
-            $model->videos()->create([
-                'tmdb_id' => $video['id'],
-                'key' => $video['key'],
-                'site' => $video['site'],
-                'type' => $video['type'],
-                'name' => $video['name'],
-                'official' => $video['official'] ?? false,
-            ]);
-        }
+        // Video syncing removed; trailer_url is now used directly.
     }
 }

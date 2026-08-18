@@ -17,6 +17,7 @@ class StoreTvShowData extends Data
         public ?string $status = null,
         public ?string $type = null,
         public ?int $episode_run_time = null,
+        public ?string $trailer_url = null,
         public bool $is_featured = false,
         /** @var int[] */
         public array $genre_ids = [],
@@ -37,6 +38,7 @@ class StoreTvShowData extends Data
             'status' => ['nullable', 'string', 'max:50'],
             'type' => ['nullable', 'string', 'max:50'],
             'episode_run_time' => ['nullable', 'integer', 'min:1'],
+            'trailer_url' => ['nullable', 'string', 'max:500'],
             'is_featured' => ['boolean'],
             'genre_ids' => ['array'],
             'genre_ids.*' => ['integer', 'exists:genres,id'],
