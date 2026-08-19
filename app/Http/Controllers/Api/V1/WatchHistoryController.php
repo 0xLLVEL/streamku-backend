@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\Requests\StoreWatchHistoryData;
+use App\Data\WatchHistoryData;
 use App\Http\Controllers\Controller;
 use App\Models\Episode;
 use App\Models\Movie;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Stevebauman\Location\Facades\Location;
 
 class WatchHistoryController extends Controller
 {
@@ -18,7 +21,8 @@ class WatchHistoryController extends Controller
             ->latest('last_watched_at')
             ->paginate(20);
 
-        $history->setCollection($history->getCollection()->map(fn($h) => \App\Data\WatchHistoryData::fromModel($h)));
+        $history->setCollection($history->getCollection()->map(fn ($h) => WatchHistoryData::fromModel($h)));
+
         return $this->success($history->toArray());
     }
 
@@ -35,7 +39,7 @@ class WatchHistoryController extends Controller
         }
 
         $ip = request()->ip();
-        $position = \Stevebauman\Location\Facades\Location::get($ip);
+        $position = Location::get($ip);
 
         $history = request()->user()->watchHistories()->updateOrCreate(
             [
@@ -52,10 +56,10 @@ class WatchHistoryController extends Controller
             ]
         );
 
-        return $this->success(\App\Data\WatchHistoryData::fromModel($history));
+        return $this->success(WatchHistoryData::fromModel($history));
     }
 
-    public function sync(\Illuminate\Http\Request $request): JsonResponse
+    public function sync(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'watchable_type' => 'required|string|in:movie,episode',
@@ -89,15 +93,19 @@ class WatchHistoryController extends Controller
     {
         $items = request()->user()
             ->watchHistories()
-            ->with('watchable')
+            ->with(['watchable' => function ($morphTo) {
+                $morphTo->morphWith([
+                    Episode::class => ['season.tvShow'],
+                ]);
+            }])
             ->where('completed', false)
             ->where('progress_seconds', '>', 0)
             ->latest('last_watched_at')
             ->limit(20)
             ->get();
 
-        return $this->success(\App\Data\WatchHistoryData::collect(
-            $items->map(fn($h) => \App\Data\WatchHistoryData::fromModel($h))
+        return $this->success(WatchHistoryData::collect(
+            $items->map(fn ($h) => WatchHistoryData::fromModel($h))
         ));
     }
 }

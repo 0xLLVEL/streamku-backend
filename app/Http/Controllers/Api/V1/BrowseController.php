@@ -6,18 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Models\Movie;
 use App\Models\TvShow;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 
 class BrowseController extends Controller
 {
     public function index(): JsonResponse
     {
-        $rows = \Illuminate\Support\Facades\Cache::remember('browse_rows', now()->addMinutes(5), function () {
-            $featured = Movie::where('is_featured', true)
+        $rows = Cache::remember('browse_rows', now()->addMinutes(5), function () {
+            $featured = Movie::with('genres')
+                ->where('is_featured', true)
                 ->orWhereHas('genres')
                 ->limit(5)
                 ->get();
 
-            $featuredTv = TvShow::where('is_featured', true)
+            $featuredTv = TvShow::with('genres')
+                ->where('is_featured', true)
                 ->limit(5)
                 ->get();
 
@@ -33,7 +36,7 @@ class BrowseController extends Controller
             $recentMovies = Movie::orderByDesc('created_at')
                 ->limit(20)
                 ->get();
-                
+
             $recentTvShows = TvShow::orderByDesc('created_at')
                 ->limit(20)
                 ->get();
