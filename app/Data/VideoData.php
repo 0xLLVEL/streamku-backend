@@ -12,7 +12,6 @@ class VideoData extends Data
         public ?string $tmdb_id,
         public string $key,
         public string $site,
-        public string $type,
         public string $name,
         public bool $official,
     ) {}

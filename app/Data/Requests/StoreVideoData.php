@@ -10,7 +10,6 @@ class StoreVideoData extends Data
     public function __construct(
         public string $key,
         public string $site,
-        public string $type,
         public string $name,
         public bool $official = false,
     ) {}
@@ -21,7 +20,6 @@ class StoreVideoData extends Data
         return [
             'key' => ['required', 'string', 'max:255'],
             'site' => ['required', 'string', 'max:50'],
-            'type' => ['required', 'string', 'max:50'],
             'name' => ['required', 'string', 'max:255'],
             'official' => ['boolean'],
         ];
