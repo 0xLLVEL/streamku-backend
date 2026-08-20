@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Episode;
 use App\Models\TvShow;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class EpisodeController extends Controller
 {
@@ -36,6 +37,38 @@ class EpisodeController extends Controller
         $tvShow->update(['number_of_episodes' => $tvShow->seasons()->withCount('episodes')->get()->sum('episodes_count')]);
 
         return $this->success($episode, null, 201);
+    }
+
+    public function bulkVidking(Request $request, TvShow $tvShow, int $season_number): JsonResponse
+    {
+        $request->validate([
+            'total_episodes' => 'required|integer|min:1|max:1000',
+        ]);
+
+        $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
+        $total = $request->integer('total_episodes');
+        $vidkingKey = $tvShow->tmdb_id ?? $tvShow->slug;
+
+        for ($i = 1; $i <= $total; $i++) {
+            $episode = $season->episodes()->firstOrCreate(
+                ['episode_number' => $i],
+                ['name' => "Episode $i", 'tmdb_id' => null]
+            );
+
+            $episode->videos()->firstOrCreate(
+                ['site' => 'VidKing'],
+                [
+                    'key' => (string) $vidkingKey,
+                    'name' => "Episode $i",
+                    'official' => false
+                ]
+            );
+        }
+
+        $season->update(['episode_count' => $season->episodes()->count()]);
+        $tvShow->update(['number_of_episodes' => $tvShow->seasons()->withCount('episodes')->get()->sum('episodes_count')]);
+
+        return $this->success(['message' => 'Episodes created successfully.']);
     }
 
     public function show(TvShow $tvShow, int $season_number, int $episode_number): JsonResponse

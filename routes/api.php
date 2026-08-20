@@ -132,6 +132,7 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('tv-shows.seasons', Admin\SeasonController::class)->names('admin.tv-shows.seasons')->parameters(['tv-shows' => 'tvShow', 'seasons' => 'season_number']);
 
             // Admin Episodes
+            Route::post('/tv-shows/{tvShow}/seasons/{season_number}/episodes/bulk-vidking', [Admin\EpisodeController::class, 'bulkVidking'])->name('admin.episodes.bulk-vidking');
             Route::get('/episodes', [Admin\EpisodeController::class, 'all'])->name('admin.episodes.all');
             Route::apiResource('tv-shows.seasons.episodes', Admin\EpisodeController::class)->names('admin.tv-shows.seasons.episodes')->parameters(['tv-shows' => 'tvShow', 'seasons' => 'season_number', 'episodes' => 'episode_number']);
             Route::apiResource('episodes.videos', Admin\EpisodeVideoController::class)->names('admin.episodes.videos')->except(['show']);
