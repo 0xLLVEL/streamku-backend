@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\MovieData;
+use App\Data\WatchHistoryData;
 use App\Http\Controllers\Controller;
 use App\Models\Movie;
 use Illuminate\Http\JsonResponse;
@@ -45,11 +46,16 @@ class MovieController extends Controller
     {
         $movie->load(['genres', 'cast', 'videos']);
 
+        if ($user = request()->user('sanctum')) {
+            $movie->load(['watchHistories' => fn($q) => $q->where('user_id', $user->id)]);
+        }
+
         $data = MovieData::from([
             ...$movie->toArray(),
             'genres' => $movie->genres->toArray(),
             'cast' => $movie->cast->toArray(),
             'videos' => $movie->videos->toArray(),
+            'history' => $movie->watchHistories?->first() ? WatchHistoryData::fromModel($movie->watchHistories->first()) : null,
         ]);
 
         return $this->success($data);

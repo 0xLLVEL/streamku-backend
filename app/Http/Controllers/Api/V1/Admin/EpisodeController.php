@@ -6,7 +6,6 @@ use App\Data\Requests\StoreEpisodeData;
 use App\Data\Requests\UpdateEpisodeData;
 use App\Http\Controllers\Controller;
 use App\Models\Episode;
-use App\Models\Season;
 use App\Models\TvShow;
 use Illuminate\Http\JsonResponse;
 
@@ -22,6 +21,7 @@ class EpisodeController extends Controller
     public function index(TvShow $tvShow, int $season_number): JsonResponse
     {
         $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
+
         return response()->json([
             'data' => $season->episodes()->orderBy('episode_number')->get(),
         ]);
@@ -42,7 +42,8 @@ class EpisodeController extends Controller
     {
         $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
         $episode = $season->episodes()->where('episode_number', $episode_number)->firstOrFail();
-        $episode->load('media.quality');
+        $episode->load(['media.quality', 'videos', 'season.tvShow']);
+
         return $this->success($episode);
     }
 
@@ -52,7 +53,7 @@ class EpisodeController extends Controller
         $episode = $season->episodes()->where('episode_number', $episode_number)->firstOrFail();
         $episode->update(array_filter($data->toArray(), fn ($v) => $v !== null));
 
-        return $this->success($episode->fresh());
+        return $this->success($episode->fresh(['media.quality', 'videos', 'season.tvShow']));
     }
 
     public function destroy(TvShow $tvShow, int $season_number, int $episode_number): JsonResponse

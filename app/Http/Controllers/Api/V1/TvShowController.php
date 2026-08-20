@@ -38,14 +38,20 @@ class TvShowController extends Controller
 
     public function show(TvShow $tvShow): JsonResponse
     {
-        $tvShow->load(['genres', 'cast', 'videos', 'seasons.episodes']);
+        $tvShow->load(['genres', 'cast', 'videos', 'seasons.episodes.videos', 'seasons.episodes.season']);
+
+        if ($user = request()->user('sanctum')) {
+            $tvShow->loadMissing([
+                'seasons.episodes.watchHistories' => fn($q) => $q->where('user_id', $user->id)
+            ]);
+        }
 
         return $this->success(\App\Data\TvShowData::from($tvShow));
     }
 
     public function season(TvShow $tvShow, int $season_number): JsonResponse
     {
-        $season = $tvShow->seasons()->where('season_number', $season_number)->with('episodes')->firstOrFail();
+        $season = $tvShow->seasons()->where('season_number', $season_number)->with(['episodes.videos', 'episodes.season'])->firstOrFail();
 
         return $this->success(\App\Data\SeasonData::from($season));
     }
@@ -53,7 +59,7 @@ class TvShowController extends Controller
     public function episode(TvShow $tvShow, int $season_number, int $episode_number): JsonResponse
     {
         $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
-        $episode = $season->episodes()->where('episode_number', $episode_number)->firstOrFail();
+        $episode = $season->episodes()->where('episode_number', $episode_number)->with(['videos', 'season'])->firstOrFail();
 
         return $this->success(\App\Data\EpisodeData::from($episode));
     }

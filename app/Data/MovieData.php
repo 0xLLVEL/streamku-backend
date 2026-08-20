@@ -37,5 +37,6 @@ class MovieData extends Data
         public Lazy|array $videos,
         public ?string $created_at = null,
         public ?string $updated_at = null,
+        public ?WatchHistoryData $history = null,
     ) {}
 }

@@ -23,6 +23,7 @@ class Episode extends Model
     {
         static::deleting(function (Episode $episode) {
             $episode->media()->delete();
+            $episode->videos()->delete();
         });
     }
 
@@ -51,5 +52,21 @@ class Episode extends Model
     public function media(): MorphMany
     {
         return $this->morphMany(Media::class, 'mediable');
+    }
+
+    /**
+     * @return MorphMany<WatchHistory, $this>
+     */
+    public function watchHistories(): MorphMany
+    {
+        return $this->morphMany(WatchHistory::class, 'watchable');
+    }
+
+    /**
+     * @return MorphMany<Video, $this>
+     */
+    public function videos(): MorphMany
+    {
+        return $this->morphMany(Video::class, 'videoable');
     }
 }

@@ -63,7 +63,7 @@ class TvShowController extends Controller
 
     public function show(TvShow $tvShow): JsonResponse
     {
-        $tvShow->load(['genres', 'cast', 'videos', 'seasons.episodes']);
+        $tvShow->load(['genres', 'cast', 'videos', 'seasons.episodes.videos', 'seasons.episodes.season']);
 
         return $this->success($tvShow);
     }

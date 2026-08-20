@@ -63,7 +63,7 @@ class MovieController extends Controller
 
     public function show(Movie $movie): JsonResponse
     {
-        $movie->load(['genres', 'cast', 'videos']);
+        $movie->load(['genres', 'cast', 'videos', 'media.quality']);
 
         return $this->success($movie);
     }
@@ -82,7 +82,7 @@ class MovieController extends Controller
             $movie->genres()->sync($data->genre_ids);
         }
 
-        return $this->success($movie->fresh(['genres', 'cast', 'videos']));
+        return $this->success($movie->fresh(['genres', 'cast', 'videos', 'media.quality']));
     }
 
     public function destroy(Movie $movie): JsonResponse
