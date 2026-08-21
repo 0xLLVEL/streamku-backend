@@ -66,6 +66,14 @@ Route::prefix('v1')->group(function () {
         Route::post('/watchlist', [WatchlistController::class, 'store'])->name('watchlist.store');
         Route::delete('/watchlist/{watchlist}', [WatchlistController::class, 'destroy'])->name('watchlist.destroy');
 
+        // Favorites
+        Route::get('/favorites', [\App\Http\Controllers\Api\V1\FavoriteController::class, 'index'])->name('favorites.index');
+        Route::post('/favorites', [\App\Http\Controllers\Api\V1\FavoriteController::class, 'store'])->name('favorites.store');
+        Route::delete('/favorites/{favorite}', [\App\Http\Controllers\Api\V1\FavoriteController::class, 'destroy'])->name('favorites.destroy');
+
+        // User Profile
+        Route::get('/users/{user}/profile', [\App\Http\Controllers\Api\V1\UserProfileController::class, 'show'])->name('users.profile');
+
         // Watch History
         Route::get('/history', [WatchHistoryController::class, 'index'])->name('history.index');
         Route::post('/history', [WatchHistoryController::class, 'store'])->name('history.store');

@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+
+class UserProfileController extends Controller
+{
+    public function show(User $user): JsonResponse
+    {
+        // For a public profile, we want to hide sensitive fields.
+        // The User model already hides password and remember_token,
+        // but we might want to also hide email.
+        $userData = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'created_at' => $user->created_at,
+        ];
+
+        // Fetch their favorites
+        $favorites = $user->favorites()->with('favoritable')->latest()->get()
+            ->map(fn($f) => \App\Data\FavoriteData::fromModel($f));
+            
+        // Fetch their watchlist
+        $watchlist = $user->watchlists()->with('watchlistable')->latest()->get()
+            ->map(fn($w) => \App\Data\WatchlistData::fromModel($w));
+
+        return $this->success([
+            'user' => $userData,
+            'favorites' => $favorites,
+            'watchlist' => $watchlist,
+        ]);
+    }
+}

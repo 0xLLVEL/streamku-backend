@@ -45,6 +45,14 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<Favorite, $this>
+     */
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    /**
      * @return HasMany<WatchHistory, $this>
      */
     public function watchHistories(): HasMany
