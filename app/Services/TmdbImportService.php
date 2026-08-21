@@ -30,8 +30,8 @@ class TmdbImportService
 
         $trailerUrl = null;
         if (!empty($data['videos']['results'])) {
-            $trailer = collect($data['videos']['results'])->firstWhere('type', 'Trailer') 
-                       ?? collect($data['videos']['results'])->first();
+            $trailer = collect($data['videos']['results'])->firstWhere('type', 'Trailer')
+                ?? collect($data['videos']['results'])->first();
             if ($trailer && $trailer['site'] === 'YouTube') {
                 $trailerUrl = 'https://www.youtube.com/watch?v=' . $trailer['key'];
             }
@@ -84,8 +84,8 @@ class TmdbImportService
 
         $trailerUrl = null;
         if (!empty($data['videos']['results'])) {
-            $trailer = collect($data['videos']['results'])->firstWhere('type', 'Trailer') 
-                       ?? collect($data['videos']['results'])->first();
+            $trailer = collect($data['videos']['results'])->firstWhere('type', 'Trailer')
+                ?? collect($data['videos']['results'])->first();
             if ($trailer && $trailer['site'] === 'YouTube') {
                 $trailerUrl = 'https://www.youtube.com/watch?v=' . $trailer['key'];
             }
@@ -244,14 +244,5 @@ class TmdbImportService
                 'order' => $member['order'] ?? $index,
             ]);
         }
-    }
-
-    /**
-     * @param  array<int, mixed>  $videos
-     */
-    private function syncVideos(array $videos, Movie|TvShow $model): void
-    {
-        $model->videos()->delete();
-        // Video syncing removed; trailer_url is now used directly.
     }
 }

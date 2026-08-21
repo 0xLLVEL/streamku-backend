@@ -79,8 +79,6 @@ Route::prefix('v1')->group(function () {
         Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
         Route::get('/reviews/{type}/{id}', [ReviewController::class, 'forTitle'])->name('reviews.for-title');
 
-
-
         // Watch Parties
         Route::post('/watch-parties', [WatchPartyController::class, 'store'])->name('watch-parties.store');
         Route::get('/watch-parties/{watchParty}', [WatchPartyController::class, 'show'])->name('watch-parties.show');
