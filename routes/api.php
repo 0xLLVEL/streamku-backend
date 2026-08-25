@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\TvShowController;
 use App\Http\Controllers\Api\V1\WatchHistoryController;
 use App\Http\Controllers\Api\V1\WatchlistController;
+use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Support\Facades\Route;
 
@@ -39,8 +40,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/auth/me', [AuthController::class, 'me'])->name('auth.me');
         Route::put('/auth/me', [AuthController::class, 'updateProfile'])->name('auth.update');
 
-        // Browse
+        // Browse & Search
         Route::get('/browse', [BrowseController::class, 'index'])->name('browse');
+        Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 
         // Movies
         Route::get('/movies', [MovieController::class, 'index'])->name('movies.index');
