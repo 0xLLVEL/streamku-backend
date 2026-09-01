@@ -2,10 +2,11 @@
 
 namespace App\Services;
 
+use App\Contracts\TmdbPort;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
-class TmdbClient
+class TmdbClient implements TmdbPort
 {
     private PendingRequest $http;
 
@@ -14,10 +15,13 @@ class TmdbClient
         $this->http = Http::baseUrl(config('tmdb.base_url'))
             ->withToken(config('tmdb.api_key'))
             ->acceptJson()
+            ->timeout(30)
+            ->retry(3, 500, throw: false)
             ->throw();
     }
 
     /**
+     * @param  array<string, mixed>  $params
      * @return array<string, mixed>
      */
     public function getMovie(int $id, array $params = []): array
@@ -36,6 +40,7 @@ class TmdbClient
     }
 
     /**
+     * @param  array<string, mixed>  $params
      * @return array<string, mixed>
      */
     public function getTvShow(int $id, array $params = []): array
@@ -54,6 +59,7 @@ class TmdbClient
     }
 
     /**
+     * @param  array<string, mixed>  $params
      * @return array<string, mixed>
      */
     public function getTvSeason(int $tvId, int $seasonNumber, array $params = []): array

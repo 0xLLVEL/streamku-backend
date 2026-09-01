@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Data\Requests\StoreReviewData;
 use App\Data\ReviewData;
+use App\Enums\MediaType;
 use App\Http\Controllers\Controller;
-use App\Models\Movie;
 use App\Models\Review;
-use App\Models\TvShow;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -28,11 +27,7 @@ class ReviewController extends Controller
 
     public function store(StoreReviewData $data): JsonResponse
     {
-        $morphType = match ($data->reviewable_type) {
-            'movie' => Movie::class,
-            'tv_show' => TvShow::class,
-            default => null,
-        };
+        $morphType = MediaType::fromString($data->reviewable_type);
 
         if (! $morphType) {
             return $this->error('Invalid reviewable type.', 422);
@@ -41,7 +36,7 @@ class ReviewController extends Controller
         $review = request()->user()->reviews()->updateOrCreate(
             [
                 'reviewable_id' => $data->reviewable_id,
-                'reviewable_type' => $morphType,
+                'reviewable_type' => $morphType->modelClass(),
             ],
             [
                 'rating' => $data->rating,
@@ -83,18 +78,14 @@ class ReviewController extends Controller
 
     public function forTitle(string $type, int $id): JsonResponse
     {
-        $morphType = match ($type) {
-            'movie' => Movie::class,
-            'tv_show', 'tv-show' => TvShow::class,
-            default => null,
-        };
+        $morphType = MediaType::fromString($type);
 
         if (! $morphType) {
             return $this->error('Invalid type.', 422);
         }
 
         $reviews = Review::with('user')
-            ->where('reviewable_type', $morphType)
+            ->where('reviewable_type', $morphType->modelClass())
             ->where('reviewable_id', $id)
             ->latest()
             ->paginate(20);

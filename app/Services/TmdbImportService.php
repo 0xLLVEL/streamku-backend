@@ -2,17 +2,17 @@
 
 namespace App\Services;
 
+use App\Contracts\TmdbPort;
 use App\Models\Genre;
 use App\Models\Movie;
 use App\Models\Season;
 use App\Models\TvShow;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class TmdbImportService
 {
     public function __construct(
-        private TmdbClient $client,
+        private TmdbPort $client,
     ) {}
 
     public function importMovie(int $tmdbId, ?string $language = null): Movie
@@ -24,16 +24,16 @@ class TmdbImportService
         $slug = $baseSlug;
         $counter = 1;
         while (Movie::where('slug', $slug)->where('tmdb_id', '!=', $tmdbId)->exists()) {
-            $slug = $baseSlug . '-' . $counter;
+            $slug = $baseSlug.'-'.$counter;
             $counter++;
         }
 
         $trailerUrl = null;
-        if (!empty($data['videos']['results'])) {
+        if (! empty($data['videos']['results'])) {
             $trailer = collect($data['videos']['results'])->firstWhere('type', 'Trailer')
                 ?? collect($data['videos']['results'])->first();
             if ($trailer && $trailer['site'] === 'YouTube') {
-                $trailerUrl = 'https://www.youtube.com/watch?v=' . $trailer['key'];
+                $trailerUrl = 'https://www.youtube.com/watch?v='.$trailer['key'];
             }
         }
 
@@ -59,7 +59,7 @@ class TmdbImportService
         );
 
         $genres = $data['genres'] ?? [];
-        if (!empty($data['adult'])) {
+        if (! empty($data['adult'])) {
             $genres[] = ['id' => 99999, 'name' => 'Adult'];
         }
 
@@ -78,16 +78,16 @@ class TmdbImportService
         $slug = $baseSlug;
         $counter = 1;
         while (TvShow::where('slug', $slug)->where('tmdb_id', '!=', $tmdbId)->exists()) {
-            $slug = $baseSlug . '-' . $counter;
+            $slug = $baseSlug.'-'.$counter;
             $counter++;
         }
 
         $trailerUrl = null;
-        if (!empty($data['videos']['results'])) {
+        if (! empty($data['videos']['results'])) {
             $trailer = collect($data['videos']['results'])->firstWhere('type', 'Trailer')
                 ?? collect($data['videos']['results'])->first();
             if ($trailer && $trailer['site'] === 'YouTube') {
-                $trailerUrl = 'https://www.youtube.com/watch?v=' . $trailer['key'];
+                $trailerUrl = 'https://www.youtube.com/watch?v='.$trailer['key'];
             }
         }
 
@@ -117,7 +117,7 @@ class TmdbImportService
         );
 
         $genres = $data['genres'] ?? [];
-        if (!empty($data['adult'])) {
+        if (! empty($data['adult'])) {
             $genres[] = ['id' => 99999, 'name' => 'Adult'];
         }
 
@@ -184,25 +184,6 @@ class TmdbImportService
                 );
             }
         }
-    }
-
-    /**
-     * @param  int[]  $tmdbIds
-     * @return Collection<int, Movie|TvShow>
-     */
-    public function importBulk(array $tmdbIds, string $type = 'movie', ?string $language = null): Collection
-    {
-        $results = collect();
-
-        foreach ($tmdbIds as $tmdbId) {
-            $results->push(
-                $type === 'movie'
-                    ? $this->importMovie($tmdbId, $language)
-                    : $this->importTvShow($tmdbId, $language)
-            );
-        }
-
-        return $results;
     }
 
     /**

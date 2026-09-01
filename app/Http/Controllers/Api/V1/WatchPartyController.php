@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Data\WatchPartyData;
+use App\Enums\MediaType;
+use App\Events\WatchPartySynced;
 use App\Http\Controllers\Controller;
 use App\Models\WatchParty;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Events\WatchPartySynced;
-use App\Models\Movie;
-use App\Models\Episode;
+use Illuminate\Http\Request;
 
 class WatchPartyController extends Controller
 {
@@ -19,24 +19,27 @@ class WatchPartyController extends Controller
             'mediable_id' => 'required|integer',
         ]);
 
-        $type = $validated['mediable_type'] === 'movie' ? Movie::class : Episode::class;
+        $morphType = MediaType::fromString($validated['mediable_type']);
+        if (! $morphType) {
+            return $this->error('Invalid mediable type.', 422);
+        }
 
         $party = WatchParty::create([
             'host_id' => $request->user()->id,
-            'mediable_type' => $type,
+            'mediable_type' => $morphType->modelClass(),
             'mediable_id' => $validated['mediable_id'],
         ]);
 
         $party->members()->attach($request->user()->id);
 
-        return $this->success(\App\Data\WatchPartyData::fromModel($party));
+        return $this->success(WatchPartyData::fromModel($party));
     }
 
     public function show(WatchParty $watchParty): JsonResponse
     {
         $watchParty->load(['host', 'members', 'mediable']);
-        
-        return $this->success(\App\Data\WatchPartyData::fromModel($watchParty));
+
+        return $this->success(WatchPartyData::fromModel($watchParty));
     }
 
     public function join(Request $request, WatchParty $watchParty): JsonResponse

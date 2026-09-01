@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ImportTmdbTitle;
 use App\Services\TmdbImportService;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -18,20 +20,18 @@ class TmdbImportController extends Controller
         $request->validate(['tmdb_id' => ['required', 'integer']]);
 
         $language = $request->user()?->preferences['language'] ?? null;
-        
+
         try {
             $movie = $this->importService->importMovie($request->integer('tmdb_id'), $language);
-        } catch (\Illuminate\Http\Client\RequestException $e) {
+        } catch (RequestException $e) {
             if ($e->response->status() === 404) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'TMDB ID not found or is not a valid Movie.'
+                    'message' => 'TMDB ID not found or is not a valid Movie.',
                 ], 404);
             }
             throw $e;
         }
-
-        \Illuminate\Support\Facades\Cache::forget('browse_rows');
 
         return $this->success($movie, 'Movie imported successfully.', 201);
     }
@@ -41,20 +41,18 @@ class TmdbImportController extends Controller
         $request->validate(['tmdb_id' => ['required', 'integer']]);
 
         $language = $request->user()?->preferences['language'] ?? null;
-        
+
         try {
             $tvShow = $this->importService->importTvShow($request->integer('tmdb_id'), $language);
-        } catch (\Illuminate\Http\Client\RequestException $e) {
+        } catch (RequestException $e) {
             if ($e->response->status() === 404) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'TMDB ID not found or is not a valid TV Show.'
+                    'message' => 'TMDB ID not found or is not a valid TV Show.',
                 ], 404);
             }
             throw $e;
         }
-
-        \Illuminate\Support\Facades\Cache::forget('browse_rows');
 
         return $this->success($tvShow, 'TV show imported successfully.', 201);
     }
@@ -68,15 +66,12 @@ class TmdbImportController extends Controller
         ]);
 
         $language = $request->user()?->preferences['language'] ?? null;
-        $results = $this->importService->importBulk(
-            $request->input('tmdb_ids'),
-            $request->input('type'),
-            $language
-        );
 
-        \Illuminate\Support\Facades\Cache::forget('browse_rows');
+        foreach ($request->input('tmdb_ids') as $tmdbId) {
+            ImportTmdbTitle::dispatch($tmdbId, $request->input('type'), $language);
+        }
 
-        return $this->success($results, $results->count().' items imported.', 201);
+        return $this->success(null, count($request->input('tmdb_ids')).' imports queued.', 202);
     }
 
     public function syncGenres(Request $request): JsonResponse

@@ -13,42 +13,25 @@ class BrowseController extends Controller
     public function index(): JsonResponse
     {
         $rows = Cache::remember('browse_rows', now()->addMinutes(5), function () {
-            $featured = Movie::with('genres')
-                ->where('is_featured', true)
-                ->orWhereHas('genres')
-                ->limit(5)
-                ->get();
+            $featured = Movie::with('genres')->featured()->limit(5)->get();
 
-            $featuredTv = TvShow::with('genres')
-                ->where('is_featured', true)
-                ->limit(5)
-                ->get();
+            $featuredTv = TvShow::with('genres')->featured()->limit(5)->get();
 
-            $popularMovies = Movie::orderByDesc('popularity')
+            $popularMovies = Movie::with('genres')->popular()->limit(20)->get();
+
+            $topRatedMovies = Movie::with('genres')->topRated()->limit(20)->get();
+
+            $recentMovies = Movie::with('genres')->orderByDesc('created_at')
                 ->limit(20)
                 ->get();
 
-            $topRatedMovies = Movie::orderByDesc('vote_average')
-                ->where('vote_count', '>=', 10)
+            $recentTvShows = TvShow::with('genres')->orderByDesc('created_at')
                 ->limit(20)
                 ->get();
 
-            $recentMovies = Movie::orderByDesc('created_at')
-                ->limit(20)
-                ->get();
+            $popularTvShows = TvShow::with('genres')->popular()->limit(20)->get();
 
-            $recentTvShows = TvShow::orderByDesc('created_at')
-                ->limit(20)
-                ->get();
-
-            $popularTvShows = TvShow::orderByDesc('popularity')
-                ->limit(20)
-                ->get();
-
-            $topRatedTvShows = TvShow::orderByDesc('vote_average')
-                ->where('vote_count', '>=', 10)
-                ->limit(20)
-                ->get();
+            $topRatedTvShows = TvShow::with('genres')->topRated()->limit(20)->get();
 
             return [
                 ['title' => 'Featured', 'items' => $featured->concat($featuredTv)->values()->toArray()],

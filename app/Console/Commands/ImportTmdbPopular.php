@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\TmdbClient;
+use App\Contracts\TmdbPort;
 use App\Services\TmdbImportService;
 use Illuminate\Console\Command;
 
@@ -16,7 +16,7 @@ class ImportTmdbPopular extends Command
     /** @var string */
     protected $description = 'Import popular movies or TV shows from TMDB for seeding';
 
-    public function handle(TmdbClient $client, TmdbImportService $service): int
+    public function handle(TmdbPort $client, TmdbImportService $service): int
     {
         $type = $this->option('type');
         $pages = (int) $this->option('pages');

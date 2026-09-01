@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Database\Factories\MovieFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\Cache;
 
 #[Fillable([
     'tmdb_id', 'title', 'slug', 'overview', 'tagline', 'trailer_url',
@@ -30,6 +32,33 @@ class Movie extends Model
             $movie->media()->delete();
             $movie->genres()->detach();
         });
+
+        static::saved(fn () => Cache::forget('browse_rows'));
+        static::deleted(fn () => Cache::forget('browse_rows'));
+    }
+
+    /**
+     * @return Builder<Movie>
+     */
+    public function scopeFeatured(Builder $query): Builder
+    {
+        return $query->where('is_featured', true);
+    }
+
+    /**
+     * @return Builder<Movie>
+     */
+    public function scopePopular(Builder $query): Builder
+    {
+        return $query->orderByDesc('popularity');
+    }
+
+    /**
+     * @return Builder<Movie>
+     */
+    public function scopeTopRated(Builder $query): Builder
+    {
+        return $query->where('vote_count', '>=', 10)->orderByDesc('vote_average');
     }
 
     /**

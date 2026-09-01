@@ -14,14 +14,14 @@ class SearchController extends Controller
     {
         $q = $request->input('q');
 
-        if (!$q) {
-            return response()->json([
-                'data' => [
-                    'movies' => [],
-                    'tv_shows' => [],
-                ]
+        if (! $q) {
+            return $this->success([
+                'movies' => [],
+                'tv_shows' => [],
             ]);
         }
+
+        $q = addcslashes($q, '%_\\');
 
         $movies = Movie::where('title', 'like', "%{$q}%")
             ->orderBy('popularity', 'desc')
@@ -33,11 +33,9 @@ class SearchController extends Controller
             ->limit(20)
             ->get();
 
-        return response()->json([
-            'data' => [
-                'movies' => $movies,
-                'tv_shows' => $tvShows,
-            ]
+        return $this->success([
+            'movies' => $movies,
+            'tv_shows' => $tvShows,
         ]);
     }
 }

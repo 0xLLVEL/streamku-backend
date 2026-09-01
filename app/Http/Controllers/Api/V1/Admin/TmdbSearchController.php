@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Contracts\TmdbPort;
 use App\Http\Controllers\Controller;
-use App\Services\TmdbClient;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class TmdbSearchController extends Controller
 {
     public function __construct(
-        private TmdbClient $client,
+        private TmdbPort $client,
     ) {}
 
     public function search(Request $request): JsonResponse
@@ -24,7 +24,7 @@ class TmdbSearchController extends Controller
 
         $query = $request->input('query');
         $page = $request->integer('page', 1);
-        
+
         $userPrefAdult = $request->user()?->preferences['include_adult'] ?? null;
         $fallback = $userPrefAdult !== null ? (bool) $userPrefAdult : false;
 

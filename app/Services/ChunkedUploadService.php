@@ -3,11 +3,8 @@
 namespace App\Services;
 
 use App\Data\UploadStatusData;
-use App\Jobs\ProcessVideoDownscale;
-use App\Models\Episode;
+use App\Enums\MediaType;
 use App\Models\Media;
-use App\Models\Movie;
-use App\Models\Quality;
 use App\Models\Upload;
 use App\Models\UploadChunk;
 use Illuminate\Http\UploadedFile;
@@ -17,6 +14,10 @@ use Illuminate\Support\Str;
 class ChunkedUploadService
 {
     private const DEFAULT_CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
+
+    public function __construct(
+        private PostUploadHandler $postUpload,
+    ) {}
 
     /**
      * @param  array{
@@ -35,11 +36,13 @@ class ChunkedUploadService
         $chunkSize = self::DEFAULT_CHUNK_SIZE;
         $totalChunks = (int) ceil($data['total_size'] / $chunkSize);
 
-        $morphType = match ($data['mediable_type']) {
-            'movie' => Movie::class,
-            'episode' => Episode::class,
-            default => throw new \InvalidArgumentException('Invalid mediable type.'),
-        };
+        $mediaType = MediaType::fromString($data['mediable_type']);
+
+        if (! in_array($mediaType, [MediaType::Movie, MediaType::Episode], true)) {
+            throw new \InvalidArgumentException('Invalid mediable type.');
+        }
+
+        $morphType = $mediaType->modelClass();
 
         $disk = 'public';
         if ($data['type'] === 'video') {
@@ -119,70 +122,28 @@ class ChunkedUploadService
 
         $upload->update(['status' => 'processing']);
 
-        $extension = pathinfo($upload->filename, PATHINFO_EXTENSION);
-        $filename = Str::uuid()->toString().'.'.$extension;
-        $subDir = match ($upload->type) {
-            'video' => 'videos',
-            'subtitle' => 'subtitles',
-            default => 'images',
-        };
-        
-        $folderName = now()->format('Y/m'); // fallback
-        $mediable = $upload->mediable;
-        
-        if ($mediable instanceof \App\Models\Movie) {
-            $folderName = $mediable->slug ?? Str::slug($mediable->title);
-        } elseif ($mediable instanceof \App\Models\Episode) {
-            $mediable->loadMissing('season.tvShow');
-            $tvShowSlug = $mediable->season->tvShow->slug ?? Str::slug($mediable->season->tvShow->name);
-            $folderName = "{$tvShowSlug}/season-{$mediable->season->season_number}";
-        }
-
-        $finalPath = "media/{$subDir}/{$folderName}/{$filename}";
+        $finalPath = $this->postUpload->buildFinalPath(
+            $upload->type,
+            $upload->mediable_type,
+            $upload->mediable_id,
+            $upload->filename,
+        );
 
         $this->mergeChunks($upload, $finalPath);
 
-        $width = null;
-        $height = null;
-        $duration = null;
-        $qualityId = $upload->quality_id;
-
-        $disk = Storage::disk($upload->disk);
-        $absolutePath = $disk->path($finalPath);
-
-        if ($upload->type === 'image') {
-            $sizes = @getimagesize($absolutePath);
-            if ($sizes) {
-                $width = $sizes[0];
-                $height = $sizes[1];
-            }
-        } elseif ($upload->type === 'video' && $qualityId) {
-            $quality = Quality::find($qualityId);
-            if ($quality) {
-                $width = $quality->width;
-                $height = $quality->height;
-            }
-        }
-
-        $media = Media::unguarded(function () use ($upload, $qualityId, $finalPath, $width, $height, $duration) {
-            return Media::create([
-                'mediable_id' => $upload->mediable_id,
-                'mediable_type' => $upload->mediable_type,
-                'quality_id' => $qualityId,
-                'type' => $upload->type,
-                'collection' => $upload->collection,
-                'disk' => $upload->disk,
-                'path' => $finalPath,
-                'original_filename' => $upload->filename,
-                'mime_type' => $upload->mime_type,
-                'size' => $upload->total_size,
-                'width' => $width,
-                'height' => $height,
-                'duration' => $duration,
-                'is_primary' => true,
-                'metadata' => $upload->metadata,
-            ]);
-        });
+        $media = $this->postUpload->createAndProcess([
+            'mediable_id' => $upload->mediable_id,
+            'mediable_type' => $upload->mediable_type,
+            'type' => $upload->type,
+            'collection' => $upload->collection,
+            'disk' => $upload->disk,
+            'path' => $finalPath,
+            'original_filename' => $upload->filename,
+            'mime_type' => $upload->mime_type,
+            'size' => $upload->total_size,
+            'quality_id' => $upload->quality_id,
+            'metadata' => $upload->metadata,
+        ]);
 
         $upload->update([
             'status' => 'completed',
@@ -191,39 +152,7 @@ class ChunkedUploadService
 
         $this->cleanupChunks($upload);
 
-        if ($media->type === 'video') {
-            ProcessVideoDownscale::dispatch($media);
-
-            if ($media->mediable_type === \App\Models\Episode::class) {
-                $episode = $media->mediable()->with('season.tvShow')->first();
-                if ($episode) {
-                    $videoCount = $episode->media()->where('type', 'video')->count();
-
-                    // Only notify on the FIRST uploaded video for this episode
-                    if ($videoCount === 1) {
-                        $tvShow = $episode->season->tvShow;
-                        
-                        $watchlists = \App\Models\Watchlist::with('user')
-                            ->where('watchlistable_type', \App\Models\TvShow::class)
-                            ->where('watchlistable_id', $tvShow->id)
-                            ->get();
-
-                        foreach ($watchlists as $watchlist) {
-                            if ($watchlist->user) {
-                                $watchlist->user->notify(new \App\Notifications\NewEpisodeReleased(
-                                    $tvShow,
-                                    $episode->season->season_number,
-                                    $episode->episode_number,
-                                    $episode->name ?? "Episode {$episode->episode_number}"
-                                ));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return $media->load('quality');
+        return $media;
     }
 
     public function cancel(Upload $upload): void

@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Data\Requests\StoreWatchHistoryData;
 use App\Data\WatchHistoryData;
+use App\Enums\MediaType;
 use App\Http\Controllers\Controller;
 use App\Models\Episode;
-use App\Models\Movie;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Stevebauman\Location\Facades\Location;
@@ -28,11 +28,7 @@ class WatchHistoryController extends Controller
 
     public function store(StoreWatchHistoryData $data): JsonResponse
     {
-        $morphType = match ($data->watchable_type) {
-            'movie' => Movie::class,
-            'episode' => Episode::class,
-            default => null,
-        };
+        $morphType = MediaType::fromString($data->watchable_type);
 
         if (! $morphType) {
             return $this->error('Invalid watchable type.', 422);
@@ -44,7 +40,7 @@ class WatchHistoryController extends Controller
         $history = request()->user()->watchHistories()->updateOrCreate(
             [
                 'watchable_id' => $data->watchable_id,
-                'watchable_type' => $morphType,
+                'watchable_type' => $morphType->modelClass(),
             ],
             [
                 'progress_seconds' => $data->progress_seconds,
@@ -68,14 +64,14 @@ class WatchHistoryController extends Controller
             'completed' => 'required|boolean',
         ]);
 
-        $morphType = match ($validated['watchable_type']) {
-            'movie' => Movie::class,
-            'episode' => Episode::class,
-        };
+        $morphType = MediaType::fromString($validated['watchable_type']);
+        if (! $morphType) {
+            return $this->error('Invalid watchable type.', 422);
+        }
 
         $updated = request()->user()->watchHistories()
             ->where('watchable_id', $validated['watchable_id'])
-            ->where('watchable_type', $morphType)
+            ->where('watchable_type', $morphType->modelClass())
             ->update([
                 'progress_seconds' => $validated['progress_seconds'],
                 'completed' => $validated['completed'],

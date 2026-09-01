@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use App\Contracts\TmdbPort;
+use App\Listeners\ProcessTusUploadCompleted;
+use App\Services\TmdbClient;
+use ArthurPatriot\Tus\Events\FileUploadFinished;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(TmdbPort::class, TmdbClient::class);
     }
 
     /**
@@ -19,9 +24,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Illuminate\Support\Facades\Event::listen(
-            \ArthurPatriot\Tus\Events\FileUploadFinished::class,
-            \App\Listeners\ProcessTusUploadCompleted::class,
+        Event::listen(
+            FileUploadFinished::class,
+            ProcessTusUploadCompleted::class,
         );
     }
 }

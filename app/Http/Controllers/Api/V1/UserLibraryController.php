@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Data\FavoriteData;
 use App\Data\WatchlistData;
+use App\Enums\MediaType;
 use App\Http\Controllers\Controller;
 use App\Models\Favorite;
-use App\Models\Movie;
-use App\Models\TvShow;
 use App\Models\Watchlist;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
@@ -39,11 +38,7 @@ class UserLibraryController extends Controller
             $lib['type_col'] => ['required', 'string', 'in:movie,tv_show'],
         ]);
 
-        $morphType = match ($validated[$lib['type_col']]) {
-            'movie' => Movie::class,
-            'tv_show' => TvShow::class,
-            default => null,
-        };
+        $morphType = MediaType::fromString($validated[$lib['type_col']]);
 
         if (! $morphType) {
             return $this->error('Invalid type.', 422);
@@ -51,7 +46,7 @@ class UserLibraryController extends Controller
 
         $item = $request->user()->{$lib['relation']}()->firstOrCreate([
             $lib['id_col'] => $validated[$lib['id_col']],
-            $lib['type_col'] => $morphType,
+            $lib['type_col'] => $morphType->modelClass(),
         ]);
 
         $item->load($lib['morph']);
