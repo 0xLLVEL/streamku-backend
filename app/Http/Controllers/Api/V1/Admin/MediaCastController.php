@@ -11,29 +11,53 @@ use Illuminate\Http\JsonResponse;
 
 class MediaCastController extends Controller
 {
-    public function index(Movie|TvShow $parent): JsonResponse
+    public function index(): JsonResponse
     {
-        return $this->success($parent->cast()->orderBy('order')->get());
+        return $this->success($this->parent()->cast()->orderBy('order')->get());
     }
 
-    public function store(StoreCastData $data, Movie|TvShow $parent): JsonResponse
+    public function store(StoreCastData $data): JsonResponse
     {
-        $cast = $parent->cast()->create($data->toArray());
+        $cast = $this->parent()->cast()->create($data->toArray());
 
         return $this->success($cast, null, 201);
     }
 
-    public function update(StoreCastData $data, Movie|TvShow $parent, Cast $cast): JsonResponse
+    public function update(StoreCastData $data): JsonResponse
     {
+        $cast = $this->cast();
+
         $cast->update(array_filter($data->toArray(), fn ($v) => $v !== null));
 
         return $this->success($cast->fresh());
     }
 
-    public function destroy(Movie|TvShow $parent, Cast $cast): JsonResponse
+    public function destroy(): JsonResponse
     {
-        $cast->delete();
+        $this->cast()->delete();
 
         return $this->success(null, 'Cast member removed.');
+    }
+
+    /**
+     * Resolve the parent media model from the current route (movie or tv-show).
+     */
+    protected function parent(): Movie|TvShow
+    {
+        $route = request()->route();
+
+        if ($route->hasParameter('tvShow')) {
+            return TvShow::findOrFail($route->parameter('tvShow'));
+        }
+
+        return Movie::findOrFail($route->parameter('movie'));
+    }
+
+    /**
+     * Resolve the child cast member by its route parameter.
+     */
+    protected function cast(): Cast
+    {
+        return Cast::findOrFail(request()->route('cast'));
     }
 }

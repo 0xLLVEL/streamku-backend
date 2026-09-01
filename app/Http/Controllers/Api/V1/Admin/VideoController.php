@@ -12,29 +12,64 @@ use Illuminate\Http\JsonResponse;
 
 class VideoController extends Controller
 {
-    public function index(Movie|TvShow|Episode $parent): JsonResponse
+    public function index(): JsonResponse
     {
-        return $this->success($parent->videos);
+        return $this->success($this->parent()->videos);
     }
 
-    public function store(StoreVideoData $data, Movie|TvShow|Episode $parent): JsonResponse
+    public function store(StoreVideoData $data): JsonResponse
     {
-        $video = $parent->videos()->create($data->toArray());
+        $video = $this->parent()->videos()->create($data->toArray());
 
         return $this->success($video, null, 201);
     }
 
-    public function update(StoreVideoData $data, Movie|TvShow|Episode $parent, Video $video): JsonResponse
+    public function update(StoreVideoData $data): JsonResponse
     {
+        $video = $this->video();
+
         $video->update(array_filter($data->toArray(), fn ($v) => $v !== null));
 
         return $this->success($video->fresh());
     }
 
-    public function destroy(Movie|TvShow|Episode $parent, Video $video): JsonResponse
+    public function destroy(): JsonResponse
     {
-        $video->delete();
+        $this->video()->delete();
 
         return $this->success(null, 'Video removed.');
+    }
+
+    /**
+     * Resolve the parent media model from the current route (movie, tv-show, or episode).
+     */
+    protected function parent(): Movie|TvShow|Episode
+    {
+        $route = request()->route();
+
+        if ($route->hasParameter('episode_number')) {
+            $tvShow = TvShow::findOrFail($route->parameter('tvShow'));
+
+            return $tvShow->seasons()
+                ->where('season_number', $route->parameter('season_number'))
+                ->firstOrFail()
+                ->episodes()
+                ->where('episode_number', $route->parameter('episode_number'))
+                ->firstOrFail();
+        }
+
+        if ($route->hasParameter('tvShow')) {
+            return TvShow::findOrFail($route->parameter('tvShow'));
+        }
+
+        return Movie::findOrFail($route->parameter('movie'));
+    }
+
+    /**
+     * Resolve the child video by its route parameter (global, not scoped to parent).
+     */
+    protected function video(): Video
+    {
+        return Video::findOrFail(request()->route('video'));
     }
 }
