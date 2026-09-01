@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Data\Requests\StoreMovieData;
-use App\Data\Requests\UpdateMovieData;
 use App\Http\Controllers\Controller;
 use App\Models\Movie;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class MovieController extends Controller
@@ -68,9 +68,26 @@ class MovieController extends Controller
         return $this->success($movie);
     }
 
-    public function update(UpdateMovieData $data, Movie $movie): JsonResponse
+    public function update(Request $request, Movie $movie): JsonResponse
     {
-        $attributes = array_filter($data->except('genre_ids')->toArray(), fn ($v) => $v !== null);
+        $validated = $request->validate([
+            'title' => ['sometimes', 'string', 'max:255'],
+            'overview' => ['nullable', 'string'],
+            'tagline' => ['nullable', 'string', 'max:255'],
+            'poster_path' => ['nullable', 'string', 'max:500'],
+            'backdrop_path' => ['nullable', 'string', 'max:500'],
+            'release_date' => ['nullable', 'date'],
+            'runtime' => ['nullable', 'integer', 'min:1'],
+            'vote_average' => ['nullable', 'numeric', 'min:0', 'max:10'],
+            'original_language' => ['nullable', 'string', 'max:10'],
+            'status' => ['nullable', 'string', 'max:50'],
+            'trailer_url' => ['nullable', 'string', 'max:500'],
+            'is_featured' => ['nullable', 'boolean'],
+            'genre_ids' => ['nullable', 'array'],
+            'genre_ids.*' => ['integer', 'exists:genres,id'],
+        ]);
+
+        $attributes = array_filter(Arr::except($validated, 'genre_ids'), fn ($v) => $v !== null);
 
         if (isset($attributes['title'])) {
             $attributes['slug'] = Str::slug($attributes['title'].'-'.($movie->tmdb_id ?? $movie->id));
@@ -78,8 +95,8 @@ class MovieController extends Controller
 
         $movie->update($attributes);
 
-        if ($data->genre_ids !== null) {
-            $movie->genres()->sync($data->genre_ids);
+        if (($validated['genre_ids'] ?? null) !== null) {
+            $movie->genres()->sync($validated['genre_ids']);
         }
 
         return $this->success($movie->fresh(['genres', 'cast', 'videos', 'media.quality']));

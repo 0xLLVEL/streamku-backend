@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Data\Requests\StoreTvShowData;
-use App\Data\Requests\UpdateTvShowData;
 use App\Http\Controllers\Controller;
 use App\Models\TvShow;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class TvShowController extends Controller
@@ -68,9 +68,25 @@ class TvShowController extends Controller
         return $this->success($tvShow);
     }
 
-    public function update(UpdateTvShowData $data, TvShow $tvShow): JsonResponse
+    public function update(Request $request, TvShow $tvShow): JsonResponse
     {
-        $attributes = array_filter($data->except('genre_ids')->toArray(), fn ($v) => $v !== null);
+        $validated = $request->validate([
+            'name' => ['sometimes', 'string', 'max:255'],
+            'overview' => ['nullable', 'string'],
+            'tagline' => ['nullable', 'string', 'max:255'],
+            'poster_path' => ['nullable', 'string', 'max:500'],
+            'backdrop_path' => ['nullable', 'string', 'max:500'],
+            'first_air_date' => ['nullable', 'date'],
+            'status' => ['nullable', 'string', 'max:50'],
+            'type' => ['nullable', 'string', 'max:50'],
+            'episode_run_time' => ['nullable', 'integer', 'min:1'],
+            'trailer_url' => ['nullable', 'string', 'max:500'],
+            'is_featured' => ['nullable', 'boolean'],
+            'genre_ids' => ['nullable', 'array'],
+            'genre_ids.*' => ['integer', 'exists:genres,id'],
+        ]);
+
+        $attributes = array_filter(Arr::except($validated, 'genre_ids'), fn ($v) => $v !== null);
 
         if (isset($attributes['name'])) {
             $attributes['slug'] = Str::slug($attributes['name'].'-'.($tvShow->tmdb_id ?? $tvShow->id));
@@ -78,8 +94,8 @@ class TvShowController extends Controller
 
         $tvShow->update($attributes);
 
-        if ($data->genre_ids !== null) {
-            $tvShow->genres()->sync($data->genre_ids);
+        if (($validated['genre_ids'] ?? null) !== null) {
+            $tvShow->genres()->sync($validated['genre_ids']);
         }
 
         return $this->success($tvShow->fresh(['genres', 'cast', 'videos', 'seasons']));

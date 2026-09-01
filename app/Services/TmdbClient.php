@@ -24,13 +24,13 @@ class TmdbClient
     {
         $imageLangs = 'en,null';
         if (isset($params['language'])) {
-            $imageLangs .= ',' . $params['language'];
+            $imageLangs .= ','.$params['language'];
         }
 
         return $this->http
             ->get("/movie/{$id}", array_merge([
                 'append_to_response' => 'credits,videos,images',
-                'include_image_language' => $imageLangs
+                'include_image_language' => $imageLangs,
             ], $params))
             ->json();
     }
@@ -42,13 +42,13 @@ class TmdbClient
     {
         $imageLangs = 'en,null';
         if (isset($params['language'])) {
-            $imageLangs .= ',' . $params['language'];
+            $imageLangs .= ','.$params['language'];
         }
 
         return $this->http
             ->get("/tv/{$id}", array_merge([
                 'append_to_response' => 'credits,videos,images',
-                'include_image_language' => $imageLangs
+                'include_image_language' => $imageLangs,
             ], $params))
             ->json();
     }
@@ -93,38 +93,6 @@ class TmdbClient
     {
         return $this->http
             ->get('/search/multi', array_merge(['query' => $query, 'page' => $page], $params))
-            ->json();
-    }
-
-    /**
-     * @param  array<string, mixed>  $filters
-     * @return array<string, mixed>
-     */
-    public function discoverMovies(array $filters = []): array
-    {
-        return $this->http
-            ->get('/discover/movie', $filters)
-            ->json();
-    }
-
-    /**
-     * @param  array<string, mixed>  $filters
-     * @return array<string, mixed>
-     */
-    public function discoverTv(array $filters = []): array
-    {
-        return $this->http
-            ->get('/discover/tv', $filters)
-            ->json();
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function trending(string $type = 'all', string $window = 'day'): array
-    {
-        return $this->http
-            ->get("/trending/{$type}/{$window}")
             ->json();
     }
 

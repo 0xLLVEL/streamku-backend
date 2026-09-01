@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Data\GenreData;
 use App\Data\Requests\StoreGenreData;
-use App\Data\Requests\UpdateGenreData;
 use App\Http\Controllers\Controller;
 use App\Models\Genre;
 use Illuminate\Http\JsonResponse;
@@ -47,9 +46,13 @@ class GenreController extends Controller
         return response()->json(['data' => GenreData::from($genre)]);
     }
 
-    public function update(UpdateGenreData $data, Genre $genre): JsonResponse
+    public function update(Request $request, Genre $genre): JsonResponse
     {
-        $attributes = array_filter($data->toArray(), fn ($v) => $v !== null);
+        $validated = $request->validate([
+            'name' => ['sometimes', 'string', 'max:255'],
+        ]);
+
+        $attributes = array_filter($validated, fn ($v) => $v !== null);
 
         if (isset($attributes['name'])) {
             $attributes['slug'] = Str::slug($attributes['name']);

@@ -1,17 +1,20 @@
 <?php
 
+use App\Http\Controllers\Api\V1\ActivityFeedController;
 use App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\WatchPartyController;
 use App\Http\Controllers\Api\V1\BrowseController;
+use App\Http\Controllers\Api\V1\FriendController;
 use App\Http\Controllers\Api\V1\GenreController;
 use App\Http\Controllers\Api\V1\MediaStreamController;
 use App\Http\Controllers\Api\V1\MovieController;
 use App\Http\Controllers\Api\V1\ReviewController;
-use App\Http\Controllers\Api\V1\TvShowController;
-use App\Http\Controllers\Api\V1\WatchHistoryController;
-use App\Http\Controllers\Api\V1\WatchlistController;
 use App\Http\Controllers\Api\V1\SearchController;
+use App\Http\Controllers\Api\V1\TvShowController;
+use App\Http\Controllers\Api\V1\UserLibraryController;
+use App\Http\Controllers\Api\V1\UserProfileController;
+use App\Http\Controllers\Api\V1\WatchHistoryController;
+use App\Http\Controllers\Api\V1\WatchPartyController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Support\Facades\Route;
 
@@ -64,17 +67,17 @@ Route::prefix('v1')->group(function () {
         Route::get('/cast', [Admin\CastController::class, 'index'])->name('cast.index');
 
         // Watchlist
-        Route::get('/watchlist', [WatchlistController::class, 'index'])->name('watchlist.index');
-        Route::post('/watchlist', [WatchlistController::class, 'store'])->name('watchlist.store');
-        Route::delete('/watchlist/{watchlist}', [WatchlistController::class, 'destroy'])->name('watchlist.destroy');
+        Route::get('/watchlist', [UserLibraryController::class, 'index'])->defaults('library', 'watchlist')->name('watchlist.index');
+        Route::post('/watchlist', [UserLibraryController::class, 'store'])->defaults('library', 'watchlist')->name('watchlist.store');
+        Route::delete('/watchlist/{item}', [UserLibraryController::class, 'destroy'])->defaults('library', 'watchlist')->name('watchlist.destroy');
 
         // Favorites
-        Route::get('/favorites', [\App\Http\Controllers\Api\V1\FavoriteController::class, 'index'])->name('favorites.index');
-        Route::post('/favorites', [\App\Http\Controllers\Api\V1\FavoriteController::class, 'store'])->name('favorites.store');
-        Route::delete('/favorites/{favorite}', [\App\Http\Controllers\Api\V1\FavoriteController::class, 'destroy'])->name('favorites.destroy');
+        Route::get('/favorites', [UserLibraryController::class, 'index'])->defaults('library', 'favorites')->name('favorites.index');
+        Route::post('/favorites', [UserLibraryController::class, 'store'])->defaults('library', 'favorites')->name('favorites.store');
+        Route::delete('/favorites/{item}', [UserLibraryController::class, 'destroy'])->defaults('library', 'favorites')->name('favorites.destroy');
 
         // User Profile
-        Route::get('/users/{user}/profile', [\App\Http\Controllers\Api\V1\UserProfileController::class, 'show'])->name('users.profile');
+        Route::get('/users/{user}/profile', [UserProfileController::class, 'show'])->name('users.profile');
 
         // Watch History
         Route::get('/history', [WatchHistoryController::class, 'index'])->name('history.index');
@@ -97,13 +100,13 @@ Route::prefix('v1')->group(function () {
 
         // Friends & Activity
         Route::prefix('friends')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Api\V1\FriendController::class, 'index'])->name('friends.index');
-            Route::get('/pending', [\App\Http\Controllers\Api\V1\FriendController::class, 'pending'])->name('friends.pending');
-            Route::post('/request', [\App\Http\Controllers\Api\V1\FriendController::class, 'request'])->name('friends.request');
-            Route::post('/{friend}/accept', [\App\Http\Controllers\Api\V1\FriendController::class, 'accept'])->name('friends.accept');
-            Route::delete('/{friend}', [\App\Http\Controllers\Api\V1\FriendController::class, 'remove'])->name('friends.remove');
+            Route::get('/', [FriendController::class, 'index'])->name('friends.index');
+            Route::get('/pending', [FriendController::class, 'pending'])->name('friends.pending');
+            Route::post('/request', [FriendController::class, 'request'])->name('friends.request');
+            Route::post('/{friend}/accept', [FriendController::class, 'accept'])->name('friends.accept');
+            Route::delete('/{friend}', [FriendController::class, 'remove'])->name('friends.remove');
         });
-        Route::get('/activity-feed', [\App\Http\Controllers\Api\V1\ActivityFeedController::class, 'index'])->name('activity-feed');
+        Route::get('/activity-feed', [ActivityFeedController::class, 'index'])->name('activity-feed');
 
         // ── Admin ───────────────────────────────────────────
         Route::prefix('admin')->middleware(EnsureUserIsAdmin::class)->group(function () {
@@ -124,16 +127,28 @@ Route::prefix('v1')->group(function () {
             Route::patch('/movies/{movie}/feature', [Admin\MovieController::class, 'toggleFeatured'])->name('admin.movies.feature');
 
             // Admin Movie Cast & Videos
-            Route::apiResource('movies.cast', Admin\MovieCastController::class)->names('admin.movies.cast')->except(['show']);
-            Route::apiResource('movies.videos', Admin\MovieVideoController::class)->names('admin.movies.videos')->except(['show']);
+            Route::get('/movies/{movie}/cast', [Admin\MediaCastController::class, 'index'])->name('admin.movies.cast.index');
+            Route::post('/movies/{movie}/cast', [Admin\MediaCastController::class, 'store'])->name('admin.movies.cast.store');
+            Route::put('/movies/{movie}/cast/{cast}', [Admin\MediaCastController::class, 'update'])->name('admin.movies.cast.update');
+            Route::delete('/movies/{movie}/cast/{cast}', [Admin\MediaCastController::class, 'destroy'])->name('admin.movies.cast.destroy');
+            Route::get('/movies/{movie}/videos', [Admin\VideoController::class, 'index'])->name('admin.movies.videos.index');
+            Route::post('/movies/{movie}/videos', [Admin\VideoController::class, 'store'])->name('admin.movies.videos.store');
+            Route::put('/movies/{movie}/videos/{video}', [Admin\VideoController::class, 'update'])->name('admin.movies.videos.update');
+            Route::delete('/movies/{movie}/videos/{video}', [Admin\VideoController::class, 'destroy'])->name('admin.movies.videos.destroy');
 
             // Admin TV Shows
             Route::apiResource('tv-shows', Admin\TvShowController::class)->names('admin.tv-shows')->parameters(['tv-shows' => 'tvShow']);
             Route::patch('/tv-shows/{tvShow}/feature', [Admin\TvShowController::class, 'toggleFeatured'])->name('admin.tv-shows.feature');
 
             // Admin TV Show Cast & Videos
-            Route::apiResource('tv-shows.cast', Admin\TvShowCastController::class)->names('admin.tv-shows.cast')->parameters(['tv-shows' => 'tvShow'])->except(['show']);
-            Route::apiResource('tv-shows.videos', Admin\TvShowVideoController::class)->names('admin.tv-shows.videos')->parameters(['tv-shows' => 'tvShow'])->except(['show']);
+            Route::get('/tv-shows/{tvShow}/cast', [Admin\MediaCastController::class, 'index'])->name('admin.tv-shows.cast.index');
+            Route::post('/tv-shows/{tvShow}/cast', [Admin\MediaCastController::class, 'store'])->name('admin.tv-shows.cast.store');
+            Route::put('/tv-shows/{tvShow}/cast/{cast}', [Admin\MediaCastController::class, 'update'])->name('admin.tv-shows.cast.update');
+            Route::delete('/tv-shows/{tvShow}/cast/{cast}', [Admin\MediaCastController::class, 'destroy'])->name('admin.tv-shows.cast.destroy');
+            Route::get('/tv-shows/{tvShow}/videos', [Admin\VideoController::class, 'index'])->name('admin.tv-shows.videos.index');
+            Route::post('/tv-shows/{tvShow}/videos', [Admin\VideoController::class, 'store'])->name('admin.tv-shows.videos.store');
+            Route::put('/tv-shows/{tvShow}/videos/{video}', [Admin\VideoController::class, 'update'])->name('admin.tv-shows.videos.update');
+            Route::delete('/tv-shows/{tvShow}/videos/{video}', [Admin\VideoController::class, 'destroy'])->name('admin.tv-shows.videos.destroy');
 
             // Admin Seasons
             Route::get('/seasons', [Admin\SeasonController::class, 'all'])->name('admin.seasons.all');
@@ -143,7 +158,10 @@ Route::prefix('v1')->group(function () {
             Route::post('/tv-shows/{tvShow}/seasons/{season_number}/episodes/bulk-vidking', [Admin\EpisodeController::class, 'bulkVidking'])->name('admin.episodes.bulk-vidking');
             Route::get('/episodes', [Admin\EpisodeController::class, 'all'])->name('admin.episodes.all');
             Route::apiResource('tv-shows.seasons.episodes', Admin\EpisodeController::class)->names('admin.tv-shows.seasons.episodes')->parameters(['tv-shows' => 'tvShow', 'seasons' => 'season_number', 'episodes' => 'episode_number']);
-            Route::apiResource('episodes.videos', Admin\EpisodeVideoController::class)->names('admin.episodes.videos')->except(['show']);
+            Route::get('/tv-shows/{tvShow}/seasons/{season_number}/episodes/{episode_number}/videos', [Admin\VideoController::class, 'index'])->name('admin.episodes.videos.index');
+            Route::post('/tv-shows/{tvShow}/seasons/{season_number}/episodes/{episode_number}/videos', [Admin\VideoController::class, 'store'])->name('admin.episodes.videos.store');
+            Route::put('/tv-shows/{tvShow}/seasons/{season_number}/episodes/{episode_number}/videos/{video}', [Admin\VideoController::class, 'update'])->name('admin.episodes.videos.update');
+            Route::delete('/tv-shows/{tvShow}/seasons/{season_number}/episodes/{episode_number}/videos/{video}', [Admin\VideoController::class, 'destroy'])->name('admin.episodes.videos.destroy');
 
             // Uploads (Chunked)
             Route::get('/uploads', [Admin\UploadController::class, 'index'])->name('admin.uploads.index');

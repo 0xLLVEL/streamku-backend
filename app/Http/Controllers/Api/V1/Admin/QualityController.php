@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Data\QualityData;
 use App\Data\Requests\StoreQualityData;
-use App\Data\Requests\UpdateQualityData;
 use App\Http\Controllers\Controller;
 use App\Models\Quality;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class QualityController extends Controller
 {
@@ -30,9 +30,18 @@ class QualityController extends Controller
         return $this->success(QualityData::from($quality));
     }
 
-    public function update(UpdateQualityData $data, Quality $quality): JsonResponse
+    public function update(Request $request, Quality $quality): JsonResponse
     {
-        $quality->update(array_filter($data->toArray(), fn ($v) => $v !== null));
+        $validated = $request->validate([
+            'name' => ['sometimes', 'string', 'max:50'],
+            'label' => ['sometimes', 'string', 'max:100'],
+            'width' => ['sometimes', 'integer', 'min:1'],
+            'height' => ['sometimes', 'integer', 'min:1'],
+            'bitrate' => ['nullable', 'integer', 'min:1'],
+            'sort_order' => ['sometimes', 'integer', 'min:0'],
+        ]);
+
+        $quality->update(array_filter($validated, fn ($v) => $v !== null));
 
         return $this->success(QualityData::from($quality->fresh()));
     }

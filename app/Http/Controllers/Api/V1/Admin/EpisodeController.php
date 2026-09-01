@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Data\Requests\StoreEpisodeData;
-use App\Data\Requests\UpdateEpisodeData;
 use App\Http\Controllers\Controller;
 use App\Models\Episode;
 use App\Models\TvShow;
@@ -60,7 +59,7 @@ class EpisodeController extends Controller
                 [
                     'key' => (string) $vidkingKey,
                     'name' => "Episode $i",
-                    'official' => false
+                    'official' => false,
                 ]
             );
         }
@@ -80,11 +79,20 @@ class EpisodeController extends Controller
         return $this->success($episode);
     }
 
-    public function update(UpdateEpisodeData $data, TvShow $tvShow, int $season_number, int $episode_number): JsonResponse
+    public function update(Request $request, TvShow $tvShow, int $season_number, int $episode_number): JsonResponse
     {
+        $validated = $request->validate([
+            'episode_number' => ['sometimes', 'integer', 'min:1'],
+            'name' => ['sometimes', 'string', 'max:255'],
+            'overview' => ['nullable', 'string'],
+            'still_path' => ['nullable', 'string', 'max:500'],
+            'air_date' => ['nullable', 'date'],
+            'runtime' => ['nullable', 'integer', 'min:1'],
+        ]);
+
         $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
         $episode = $season->episodes()->where('episode_number', $episode_number)->firstOrFail();
-        $episode->update(array_filter($data->toArray(), fn ($v) => $v !== null));
+        $episode->update(array_filter($validated, fn ($v) => $v !== null));
 
         return $this->success($episode->fresh(['media.quality', 'videos', 'season.tvShow']));
     }

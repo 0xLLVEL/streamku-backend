@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\Requests\StoreReviewData;
-use App\Data\Requests\UpdateReviewData;
+use App\Data\ReviewData;
 use App\Http\Controllers\Controller;
 use App\Models\Movie;
 use App\Models\Review;
 use App\Models\TvShow;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
@@ -20,7 +21,8 @@ class ReviewController extends Controller
             ->latest()
             ->paginate(20);
 
-        $reviews->setCollection($reviews->getCollection()->map(fn($r) => \App\Data\ReviewData::fromModel($r)));
+        $reviews->setCollection($reviews->getCollection()->map(fn ($r) => ReviewData::fromModel($r)));
+
         return $this->success($reviews->toArray());
     }
 
@@ -49,18 +51,23 @@ class ReviewController extends Controller
 
         $review->load('reviewable');
 
-        return $this->success(\App\Data\ReviewData::fromModel($review), null, 201);
+        return $this->success(ReviewData::fromModel($review), null, 201);
     }
 
-    public function update(UpdateReviewData $data, Review $review): JsonResponse
+    public function update(Request $request, Review $review): JsonResponse
     {
         if ($review->user_id !== request()->user()->id) {
             return $this->error('Forbidden.', 403);
         }
 
-        $review->update(array_filter($data->toArray(), fn ($v) => $v !== null));
+        $validated = $request->validate([
+            'rating' => ['sometimes', 'integer', 'min:1', 'max:10'],
+            'body' => ['nullable', 'string', 'max:5000'],
+        ]);
 
-        return $this->success(\App\Data\ReviewData::fromModel($review->fresh()));
+        $review->update(array_filter($validated, fn ($v) => $v !== null));
+
+        return $this->success(ReviewData::fromModel($review->fresh()));
     }
 
     public function destroy(Review $review): JsonResponse
@@ -92,7 +99,8 @@ class ReviewController extends Controller
             ->latest()
             ->paginate(20);
 
-        $reviews->setCollection($reviews->getCollection()->map(fn($r) => \App\Data\ReviewData::fromModel($r)));
+        $reviews->setCollection($reviews->getCollection()->map(fn ($r) => ReviewData::fromModel($r)));
+
         return $this->success($reviews->toArray());
     }
 }
