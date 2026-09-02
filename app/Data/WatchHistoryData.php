@@ -32,6 +32,7 @@ class WatchHistoryData extends Data
                 'id' => $history->watchable->id,
                 'title' => $isMovie ? $history->watchable->title : $history->watchable->name,
                 'poster_path' => $isMovie ? $history->watchable->poster_path : $history->watchable->still_path,
+                'backdrop_path' => $isMovie ? $history->watchable->backdrop_path : null,
                 'slug' => $isMovie ? $history->watchable->slug : ($history->watchable->season->tvShow->slug ?? ''),
                 'season_number' => $isMovie ? null : $history->watchable->season->season_number,
                 'episode_number' => $isMovie ? null : $history->watchable->episode_number,
