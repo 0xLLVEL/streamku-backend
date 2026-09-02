@@ -22,8 +22,8 @@ test('user can store watch history progress', function () {
     $movie = Movie::factory()->create();
 
     $response = $this->actingAs($user)->postJson(route('history.store'), [
-        'watchable_id' => $movie->id,
-        'watchable_type' => 'movie',
+        'media_id' => $movie->id,
+        'media_type' => 'movie',
         'progress_seconds' => 120,
         'duration_seconds' => 3600,
     ]);

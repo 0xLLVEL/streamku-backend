@@ -15,19 +15,19 @@ class WatchPartyController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'mediable_type' => 'required|in:movie,episode',
-            'mediable_id' => 'required|integer',
+            'media_type' => 'required|in:movie,episode',
+            'media_id' => 'required|integer',
         ]);
 
-        $morphType = MediaType::fromString($validated['mediable_type']);
+        $morphType = MediaType::fromString($validated['media_type']);
         if (! $morphType) {
-            return $this->error('Invalid mediable type.', 422);
+            return $this->error('Invalid media type.', 422);
         }
 
         $party = WatchParty::create([
             'host_id' => $request->user()->id,
             'mediable_type' => $morphType->modelClass(),
-            'mediable_id' => $validated['mediable_id'],
+            'mediable_id' => $validated['media_id'],
         ]);
 
         $party->members()->attach($request->user()->id);

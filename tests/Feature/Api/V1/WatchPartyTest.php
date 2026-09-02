@@ -1,11 +1,11 @@
 <?php
 
+use App\Events\WatchPartySynced;
 use App\Models\Movie;
 use App\Models\User;
 use App\Models\WatchParty;
-use App\Events\WatchPartySynced;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 
 uses(RefreshDatabase::class);
 
@@ -14,14 +14,14 @@ test('authenticated user can create a watch party', function () {
     $movie = Movie::factory()->create();
 
     $response = $this->actingAs($user)->postJson('/api/v1/watch-parties', [
-        'mediable_type' => 'movie',
-        'mediable_id' => $movie->id,
+        'media_type' => 'movie',
+        'media_id' => $movie->id,
     ]);
 
     $response->assertStatus(200)
-             ->assertJsonPath('data.host_id', $user->id)
-             ->assertJsonPath('data.media_type', 'movie')
-             ->assertJsonPath('data.media_id', $movie->id);
+        ->assertJsonPath('data.host_id', $user->id)
+        ->assertJsonPath('data.media_type', 'movie')
+        ->assertJsonPath('data.media_id', $movie->id);
 
     $this->assertDatabaseHas('watch_parties', [
         'host_id' => $user->id,
@@ -72,8 +72,8 @@ test('host can sync playback and broadcast event', function () {
     $response->assertStatus(200);
 
     Event::assertDispatched(WatchPartySynced::class, function ($event) use ($party) {
-        return $event->watchPartyId === $party->id 
-            && $event->isPlaying === true 
+        return $event->watchPartyId === $party->id
+            && $event->isPlaying === true
             && $event->currentTime === 120.5;
     });
 });

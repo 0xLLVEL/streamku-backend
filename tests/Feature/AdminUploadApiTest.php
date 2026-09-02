@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Movie;
+use App\Models\Quality;
 use App\Models\Upload;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,14 +16,16 @@ beforeEach(function () {
 
 test('admin can initiate upload session', function () {
     $movie = Movie::factory()->create();
+    $quality = Quality::factory()->create();
 
     $response = $this->actingAs($this->admin)->postJson(route('admin.uploads.initiate'), [
         'filename' => 'test.mp4',
         'mime_type' => 'video/mp4',
         'total_size' => 10485760, // 10MB
-        'mediable_id' => $movie->id,
-        'mediable_type' => 'movie',
+        'media_id' => $movie->id,
+        'media_type' => 'movie',
         'type' => 'video',
+        'quality_id' => $quality->id,
     ]);
 
     $response->assertCreated()

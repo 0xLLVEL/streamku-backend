@@ -8,7 +8,6 @@ use App\Enums\MediaType;
 use App\Http\Controllers\Controller;
 use App\Models\Episode;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Stevebauman\Location\Facades\Location;
 
 class WatchHistoryController extends Controller
@@ -28,10 +27,10 @@ class WatchHistoryController extends Controller
 
     public function store(StoreWatchHistoryData $data): JsonResponse
     {
-        $morphType = MediaType::fromString($data->watchable_type);
+        $morphType = MediaType::fromString($data->media_type);
 
         if (! $morphType) {
-            return $this->error('Invalid watchable type.', 422);
+            return $this->error('Invalid media type.', 422);
         }
 
         $ip = request()->ip();
@@ -39,7 +38,7 @@ class WatchHistoryController extends Controller
 
         $history = request()->user()->watchHistories()->updateOrCreate(
             [
-                'watchable_id' => $data->watchable_id,
+                'watchable_id' => $data->media_id,
                 'watchable_type' => $morphType->modelClass(),
             ],
             [
@@ -53,36 +52,6 @@ class WatchHistoryController extends Controller
         );
 
         return $this->success(WatchHistoryData::fromModel($history));
-    }
-
-    public function sync(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'watchable_type' => 'required|string|in:movie,episode',
-            'watchable_id' => 'required|integer',
-            'progress_seconds' => 'required|integer|min:0',
-            'completed' => 'required|boolean',
-        ]);
-
-        $morphType = MediaType::fromString($validated['watchable_type']);
-        if (! $morphType) {
-            return $this->error('Invalid watchable type.', 422);
-        }
-
-        $updated = request()->user()->watchHistories()
-            ->where('watchable_id', $validated['watchable_id'])
-            ->where('watchable_type', $morphType->modelClass())
-            ->update([
-                'progress_seconds' => $validated['progress_seconds'],
-                'completed' => $validated['completed'],
-                'last_watched_at' => now(),
-            ]);
-
-        if (! $updated) {
-            return $this->error('Watch history not found. Call POST /history first.', 404);
-        }
-
-        return $this->success(null, 'Progress synced successfully.');
     }
 
     public function continueWatching(): JsonResponse

@@ -8,18 +8,19 @@ use App\Http\Controllers\Controller;
 use App\Models\Movie;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class MovieController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $cacheKey = 'movies_index_' . md5(json_encode($request->all()));
+        $cacheKey = 'movies_index_'.md5(json_encode($request->all()));
 
-        $movies = \Illuminate\Support\Facades\Cache::remember($cacheKey, now()->addMinutes(30), function () use ($request) {
+        $movies = Cache::remember($cacheKey, now()->addMinutes(30), function () use ($request) {
             $query = Movie::query();
 
             if ($request->filled('genre')) {
-                $query->whereHas('genres', fn($q) => $q->where('slug', $request->input('genre')));
+                $query->whereHas('genres', fn ($q) => $q->where('slug', $request->input('genre')));
             }
 
             if ($request->filled('year')) {
@@ -47,7 +48,7 @@ class MovieController extends Controller
         $movie->load(['genres', 'cast', 'videos']);
 
         if ($user = request()->user('sanctum')) {
-            $movie->load(['watchHistories' => fn($q) => $q->where('user_id', $user->id)]);
+            $movie->load(['watchHistories' => fn ($q) => $q->where('user_id', $user->id)]);
         }
 
         $data = MovieData::from([
@@ -73,6 +74,6 @@ class MovieController extends Controller
             ->limit(10)
             ->get();
 
-        return $this->success(['data' => $recommendations]);
+        return $this->success($recommendations->values());
     }
 }

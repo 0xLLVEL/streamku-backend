@@ -12,8 +12,8 @@ test('user can store a review', function () {
     $movie = Movie::factory()->create();
 
     $response = $this->actingAs($user)->postJson(route('reviews.store'), [
-        'reviewable_id' => $movie->id,
-        'reviewable_type' => 'movie',
+        'media_id' => $movie->id,
+        'media_type' => 'movie',
         'rating' => 8,
         'content' => 'Great movie!',
     ]);
@@ -61,7 +61,7 @@ test('can get reviews for a specific title', function () {
         'reviewable_type' => Movie::class,
     ]);
 
-    $response = $this->actingAs($user)->getJson(route('reviews.for-title', ['type' => 'movie', 'id' => $movie->id]));
+    $response = $this->actingAs($user)->getJson(route('reviews.for-title', ['media_type' => 'movie', 'id' => $movie->id]));
 
     $response->assertOk()
         ->assertJsonCount(2, 'data');

@@ -27,15 +27,15 @@ class ReviewController extends Controller
 
     public function store(StoreReviewData $data): JsonResponse
     {
-        $morphType = MediaType::fromString($data->reviewable_type);
+        $morphType = MediaType::fromString($data->media_type);
 
         if (! $morphType) {
-            return $this->error('Invalid reviewable type.', 422);
+            return $this->error('Invalid media type.', 422);
         }
 
         $review = request()->user()->reviews()->updateOrCreate(
             [
-                'reviewable_id' => $data->reviewable_id,
+                'reviewable_id' => $data->media_id,
                 'reviewable_type' => $morphType->modelClass(),
             ],
             [
@@ -76,9 +76,9 @@ class ReviewController extends Controller
         return $this->success(null, 'Review deleted.');
     }
 
-    public function forTitle(string $type, int $id): JsonResponse
+    public function forTitle(string $mediaType, int $id): JsonResponse
     {
-        $morphType = MediaType::fromString($type);
+        $morphType = MediaType::fromString($mediaType);
 
         if (! $morphType) {
             return $this->error('Invalid type.', 422);

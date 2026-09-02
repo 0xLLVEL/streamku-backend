@@ -8,8 +8,8 @@ use Spatie\LaravelData\Data;
 class StoreWatchHistoryData extends Data
 {
     public function __construct(
-        public int $watchable_id,
-        public string $watchable_type,
+        public int $media_id,
+        public string $media_type,
         public int $progress_seconds = 0,
         public int $duration_seconds = 0,
         public bool $completed = false,
@@ -19,8 +19,8 @@ class StoreWatchHistoryData extends Data
     public static function rules(): array
     {
         return [
-            'watchable_id' => ['required', 'integer'],
-            'watchable_type' => ['required', 'string', 'in:movie,episode'],
+            'media_id' => ['required', 'integer'],
+            'media_type' => ['required', 'string', 'in:movie,episode'],
             'progress_seconds' => ['integer', 'min:0'],
             'duration_seconds' => ['integer', 'min:0'],
             'completed' => ['boolean'],

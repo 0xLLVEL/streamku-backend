@@ -24,8 +24,8 @@ class ChunkedUploadService
      *     filename: string,
      *     mime_type: string,
      *     total_size: int,
-     *     mediable_id: int,
-     *     mediable_type: string,
+     *     media_id: int,
+     *     media_type: string,
      *     type: string,
      *     quality_id: int|null,
      *     collection: string,
@@ -36,10 +36,10 @@ class ChunkedUploadService
         $chunkSize = self::DEFAULT_CHUNK_SIZE;
         $totalChunks = (int) ceil($data['total_size'] / $chunkSize);
 
-        $mediaType = MediaType::fromString($data['mediable_type']);
+        $mediaType = MediaType::fromString($data['media_type']);
 
         if (! in_array($mediaType, [MediaType::Movie, MediaType::Episode], true)) {
-            throw new \InvalidArgumentException('Invalid mediable type.');
+            throw new \InvalidArgumentException('Invalid media type.');
         }
 
         $morphType = $mediaType->modelClass();
@@ -62,7 +62,7 @@ class ChunkedUploadService
             'received_chunks' => 0,
             'status' => 'pending',
             'disk' => $disk,
-            'mediable_id' => $data['mediable_id'],
+            'mediable_id' => $data['media_id'],
             'mediable_type' => $morphType,
             'quality_id' => $data['quality_id'] ?? null,
             'collection' => $data['collection'] ?? 'default',

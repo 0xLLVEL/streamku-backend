@@ -35,6 +35,25 @@ Route::prefix('v1')->group(function () {
     Route::get('/tv-shows/{tvShow:slug}/seasons/{season:season_number}/episodes/{episode:episode_number}/media', [MediaStreamController::class, 'episodeMedia'])->name('episodes.media');
     Route::get('/media/{media}/stream', [MediaStreamController::class, 'stream'])->name('media.stream');
 
+    // ── Public browsing (works signed out) ─────────────────
+    Route::get('/browse', [BrowseController::class, 'index'])->name('browse');
+    Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+
+    Route::get('/movies', [MovieController::class, 'index'])->name('movies.index');
+    Route::get('/movies/{movie:slug}', [MovieController::class, 'show'])->name('movies.show');
+    Route::get('/movies/{movie:slug}/recommendations', [MovieController::class, 'recommendations'])->name('movies.recommendations');
+
+    Route::get('/tv-shows', [TvShowController::class, 'index'])->name('tv-shows.index');
+    Route::get('/tv-shows/{tvShow:slug}', [TvShowController::class, 'show'])->name('tv-shows.show');
+    Route::get('/tv-shows/{tvShow:slug}/recommendations', [TvShowController::class, 'recommendations'])->name('tv-shows.recommendations');
+    Route::get('/tv-shows/{tvShow:slug}/seasons/{season_number}', [TvShowController::class, 'season'])->name('tv-shows.seasons.show');
+    Route::get('/tv-shows/{tvShow:slug}/seasons/{season_number}/episodes/{episode_number}', [TvShowController::class, 'episode'])->name('tv-shows.seasons.episodes.show');
+
+    Route::get('/genres', [GenreController::class, 'index'])->name('genres.index');
+    Route::get('/genres/{genre:slug}', [GenreController::class, 'show'])->name('genres.show');
+
+    Route::get('/users/{user}/profile', [UserProfileController::class, 'show'])->name('users.profile');
+
     // ── Authenticated ───────────────────────────────────────
     Route::middleware('auth:sanctum')->group(function () {
 
@@ -42,26 +61,6 @@ Route::prefix('v1')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
         Route::get('/auth/me', [AuthController::class, 'me'])->name('auth.me');
         Route::put('/auth/me', [AuthController::class, 'updateProfile'])->name('auth.update');
-
-        // Browse & Search
-        Route::get('/browse', [BrowseController::class, 'index'])->name('browse');
-        Route::get('/search', [SearchController::class, 'index'])->name('search.index');
-
-        // Movies
-        Route::get('/movies', [MovieController::class, 'index'])->name('movies.index');
-        Route::get('/movies/{movie:slug}', [MovieController::class, 'show'])->name('movies.show');
-        Route::get('/movies/{movie:slug}/recommendations', [MovieController::class, 'recommendations'])->name('movies.recommendations');
-
-        // TV Shows
-        Route::get('/tv-shows', [TvShowController::class, 'index'])->name('tv-shows.index');
-        Route::get('/tv-shows/{tvShow:slug}', [TvShowController::class, 'show'])->name('tv-shows.show');
-        Route::get('/tv-shows/{tvShow:slug}/recommendations', [TvShowController::class, 'recommendations'])->name('tv-shows.recommendations');
-        Route::get('/tv-shows/{tvShow:slug}/seasons/{season_number}', [TvShowController::class, 'season'])->name('tv-shows.seasons.show');
-        Route::get('/tv-shows/{tvShow:slug}/seasons/{season_number}/episodes/{episode_number}', [TvShowController::class, 'episode'])->name('tv-shows.seasons.episodes.show');
-
-        // Genres
-        Route::get('/genres', [GenreController::class, 'index'])->name('genres.index');
-        Route::get('/genres/{genre:slug}', [GenreController::class, 'show'])->name('genres.show');
 
         // Cast
         Route::get('/cast', [Admin\CastController::class, 'index'])->name('cast.index');
@@ -76,13 +75,9 @@ Route::prefix('v1')->group(function () {
         Route::post('/favorites', [UserLibraryController::class, 'store'])->defaults('library', 'favorites')->name('favorites.store');
         Route::delete('/favorites/{item}', [UserLibraryController::class, 'destroy'])->defaults('library', 'favorites')->name('favorites.destroy');
 
-        // User Profile
-        Route::get('/users/{user}/profile', [UserProfileController::class, 'show'])->name('users.profile');
-
         // Watch History
         Route::get('/history', [WatchHistoryController::class, 'index'])->name('history.index');
         Route::post('/history', [WatchHistoryController::class, 'store'])->name('history.store');
-        Route::patch('/history/sync', [WatchHistoryController::class, 'sync'])->name('history.sync');
         Route::get('/history/continue-watching', [WatchHistoryController::class, 'continueWatching'])->name('history.continue');
 
         // Reviews
@@ -90,7 +85,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
         Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
         Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
-        Route::get('/reviews/{type}/{id}', [ReviewController::class, 'forTitle'])->name('reviews.for-title');
+        Route::get('/reviews/{media_type}/{id}', [ReviewController::class, 'forTitle'])->name('reviews.for-title');
 
         // Watch Parties
         Route::post('/watch-parties', [WatchPartyController::class, 'store'])->name('watch-parties.store');

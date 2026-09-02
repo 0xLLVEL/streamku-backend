@@ -34,19 +34,19 @@ class UserLibraryController extends Controller
         $lib = $this->library($request);
 
         $validated = $request->validate([
-            $lib['id_col'] => ['required', 'integer'],
-            $lib['type_col'] => ['required', 'string', 'in:movie,tv_show'],
+            'media_id' => ['required', 'integer'],
+            'media_type' => ['required', 'string', 'in:movie,tv_show'],
         ]);
 
-        $morphType = MediaType::fromString($validated[$lib['type_col']]);
+        $morphType = MediaType::fromString($validated['media_type']);
 
         if (! $morphType) {
-            return $this->error('Invalid type.', 422);
+            return $this->error('Invalid media type.', 422);
         }
 
         $item = $request->user()->{$lib['relation']}()->firstOrCreate([
-            $lib['id_col'] => $validated[$lib['id_col']],
-            $lib['type_col'] => $morphType->modelClass(),
+            $lib['id_column'] => $validated['media_id'],
+            $lib['type_column'] => $morphType->modelClass(),
         ]);
 
         $item->load($lib['morph']);
@@ -65,7 +65,7 @@ class UserLibraryController extends Controller
     }
 
     /**
-     * @return array{relation: string, morph: string, data: class-string<Data>, model: class-string<Model>, id_col: string, type_col: string}
+     * @return array{relation: string, morph: string, data: class-string<Data>, model: class-string<Model>, id_column: string, type_column: string}
      */
     private function library(Request $request): array
     {
@@ -77,16 +77,16 @@ class UserLibraryController extends Controller
                 'morph' => 'favoritable',
                 'data' => FavoriteData::class,
                 'model' => Favorite::class,
-                'id_col' => 'favoritable_id',
-                'type_col' => 'favoritable_type',
+                'id_column' => 'favoritable_id',
+                'type_column' => 'favoritable_type',
             ]
             : [
                 'relation' => 'watchlists',
                 'morph' => 'watchlistable',
                 'data' => WatchlistData::class,
                 'model' => Watchlist::class,
-                'id_col' => 'watchlistable_id',
-                'type_col' => 'watchlistable_type',
+                'id_column' => 'watchlistable_id',
+                'type_column' => 'watchlistable_type',
             ];
     }
 }

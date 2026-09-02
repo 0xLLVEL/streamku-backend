@@ -23,11 +23,6 @@ enum MediaType: string
 
     public static function fromString(string $value): ?self
     {
-        return match ($value) {
-            'movie', 'Movie' => self::Movie,
-            'tv', 'tv_show', 'tv-show', 'TvShow' => self::TvShow,
-            'episode' => self::Episode,
-            default => null,
-        };
+        return self::tryFrom($value);
     }
 }

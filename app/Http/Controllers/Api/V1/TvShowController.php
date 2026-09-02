@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Data\EpisodeData;
+use App\Data\SeasonData;
+use App\Data\TvShowData;
 use App\Http\Controllers\Controller;
-use App\Models\Episode;
-use App\Models\Season;
 use App\Models\TvShow;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -42,18 +43,18 @@ class TvShowController extends Controller
 
         if ($user = request()->user('sanctum')) {
             $tvShow->loadMissing([
-                'seasons.episodes.watchHistories' => fn($q) => $q->where('user_id', $user->id)
+                'seasons.episodes.watchHistories' => fn ($q) => $q->where('user_id', $user->id),
             ]);
         }
 
-        return $this->success(\App\Data\TvShowData::from($tvShow));
+        return $this->success(TvShowData::from($tvShow));
     }
 
     public function season(TvShow $tvShow, int $season_number): JsonResponse
     {
         $season = $tvShow->seasons()->where('season_number', $season_number)->with(['episodes.videos', 'episodes.season'])->firstOrFail();
 
-        return $this->success(\App\Data\SeasonData::from($season));
+        return $this->success(SeasonData::from($season));
     }
 
     public function episode(TvShow $tvShow, int $season_number, int $episode_number): JsonResponse
@@ -61,7 +62,7 @@ class TvShowController extends Controller
         $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
         $episode = $season->episodes()->where('episode_number', $episode_number)->with(['videos', 'season'])->firstOrFail();
 
-        return $this->success(\App\Data\EpisodeData::from($episode));
+        return $this->success(EpisodeData::from($episode));
     }
 
     public function recommendations(TvShow $tvShow): JsonResponse
@@ -76,6 +77,6 @@ class TvShowController extends Controller
             ->limit(10)
             ->get();
 
-        return $this->success(['data' => $recommendations]);
+        return $this->success($recommendations->values());
     }
 }

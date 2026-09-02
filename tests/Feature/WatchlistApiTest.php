@@ -22,8 +22,8 @@ test('user can add movie to watchlist', function () {
     $movie = Movie::factory()->create();
 
     $response = $this->actingAs($user)->postJson(route('watchlist.store'), [
-        'watchlistable_id' => $movie->id,
-        'watchlistable_type' => 'movie',
+        'media_id' => $movie->id,
+        'media_type' => 'movie',
     ]);
 
     $response->assertCreated();
