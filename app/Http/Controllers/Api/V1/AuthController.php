@@ -21,7 +21,7 @@ class AuthController extends Controller
         $position = Location::get($ip);
 
         $user = User::create([
-            'name' => $data->name,
+            'username' => $data->username,
             'email' => $data->email,
             'password' => $data->password,
             'ip_address' => $ip,
@@ -80,7 +80,9 @@ class AuthController extends Controller
     public function updateProfile(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
+            'username' => ['sometimes', 'string', 'max:255'],
+            'nickname' => ['sometimes', 'nullable', 'string', 'max:30', 'regex:/^[a-zA-Z0-9_]+$/'],
+            'avatar' => ['sometimes', 'nullable', 'image', 'max:2048'],
             'preferences' => ['sometimes', 'array'],
             'preferences.include_adult' => ['sometimes', 'boolean'],
             'preferences.dark_mode' => ['sometimes', 'boolean'],
@@ -88,6 +90,13 @@ class AuthController extends Controller
         ]);
 
         $user = $request->user();
+
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar'] = '/storage/'.$path;
+        } elseif (array_key_exists('avatar', $validated) && $validated['avatar'] === null) {
+            $validated['avatar'] = null;
+        }
 
         if (isset($validated['preferences'])) {
             $user->preferences = array_merge((array) $user->preferences, $validated['preferences']);

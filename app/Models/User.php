@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,7 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'is_admin', 'preferences', 'ip_address', 'country'])]
+#[Fillable(['username', 'email', 'password', 'is_admin', 'preferences', 'ip_address', 'country', 'avatar', 'nickname'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -30,6 +31,12 @@ class User extends Authenticatable
             'is_admin' => 'boolean',
             'preferences' => 'array',
         ];
+    }
+
+    /** BC alias: $user->name returns username */
+    protected function name(): Attribute
+    {
+        return Attribute::get(fn () => $this->username);
     }
 
     public function isAdmin(): bool

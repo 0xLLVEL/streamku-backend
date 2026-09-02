@@ -65,7 +65,7 @@ Route::prefix('v1')->group(function () {
         // Auth
         Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
         Route::get('/auth/me', [AuthController::class, 'me'])->name('auth.me');
-        Route::put('/auth/me', [AuthController::class, 'updateProfile'])->name('auth.update');
+        Route::match(['put', 'post'], '/auth/me', [AuthController::class, 'updateProfile'])->name('auth.update');
 
         // Cast
         Route::get('/cast', [Admin\CastController::class, 'index'])->name('cast.index');

@@ -7,14 +7,14 @@ uses(RefreshDatabase::class);
 
 test('user can register', function () {
     $response = $this->postJson(route('auth.register'), [
-        'name' => 'Test User',
+        'username' => 'testuser',
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
     ]);
 
     $response->assertCreated()
-        ->assertJsonStructure(['data' => ['user' => ['id', 'name', 'email'], 'token']]);
+        ->assertJsonStructure(['data' => ['user' => ['id', 'username', 'email'], 'token']]);
 
     $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
 });

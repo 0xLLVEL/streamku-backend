@@ -18,6 +18,8 @@ class CommentData extends Data
         public string $body,
         public ?int $parent_id = null,
         public ?string $user_name = null,
+        public ?string $user_avatar = null,
+        public ?string $user_nickname = null,
         public ?string $created_at = null,
         public bool $is_approved = true,
         /** @var list<CommentData> */
@@ -37,7 +39,9 @@ class CommentData extends Data
             media_id: $comment->commentable_id,
             body: $comment->body,
             parent_id: $comment->parent_id,
-            user_name: $comment->relationLoaded('user') ? $comment->user->name : null,
+            user_name: $comment->relationLoaded('user') ? $comment->user->username : null,
+            user_avatar: $comment->relationLoaded('user') ? $comment->user->avatar : null,
+            user_nickname: $comment->relationLoaded('user') ? $comment->user->nickname : null,
             created_at: $comment->created_at?->toIso8601String(),
             is_approved: (bool) $comment->is_approved,
             replies: $comment->relationLoaded('replies')

@@ -18,6 +18,8 @@ class ReviewData extends Data
         public int $rating,
         public ?string $body,
         public ?string $user_name = null,
+        public ?string $user_avatar = null,
+        public ?string $user_nickname = null,
         public ?string $created_at = null,
         public bool $is_approved = true,
     ) {}
@@ -35,7 +37,9 @@ class ReviewData extends Data
             media_id: $review->reviewable_id,
             rating: $review->rating,
             body: $review->body,
-            user_name: $review->relationLoaded('user') ? $review->user->name : null,
+            user_name: $review->relationLoaded('user') ? $review->user->username : null,
+            user_avatar: $review->relationLoaded('user') ? $review->user->avatar : null,
+            user_nickname: $review->relationLoaded('user') ? $review->user->nickname : null,
             created_at: $review->created_at?->toIso8601String(),
             is_approved: (bool) $review->is_approved,
         );

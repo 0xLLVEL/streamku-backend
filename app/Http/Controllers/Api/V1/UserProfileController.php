@@ -17,7 +17,9 @@ class UserProfileController extends Controller
         // but we might want to also hide email.
         $userData = [
             'id' => $user->id,
-            'name' => $user->name,
+            'username' => $user->username,
+            'nickname' => $user->nickname,
+            'avatar' => $user->avatar,
             'created_at' => $user->created_at,
         ];
 

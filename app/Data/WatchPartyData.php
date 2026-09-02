@@ -25,7 +25,9 @@ class WatchPartyData extends Data
         if ($party->relationLoaded('members')) {
             $members = $party->members->map(fn ($user) => [
                 'id' => $user->id,
-                'name' => $user->name,
+                'username' => $user->username,
+                'nickname' => $user->nickname,
+                'avatar' => $user->avatar,
             ])->toArray();
         }
 

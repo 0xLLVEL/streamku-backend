@@ -26,7 +26,7 @@ test('user can store a review', function () {
 });
 
 test('store response includes the user name', function () {
-    $user = User::factory()->create(['name' => 'Alice Test']);
+    $user = User::factory()->create(['username' => 'Alice Test']);
     $movie = Movie::factory()->create();
 
     $response = $this->actingAs($user)->postJson(route('reviews.store'), [
