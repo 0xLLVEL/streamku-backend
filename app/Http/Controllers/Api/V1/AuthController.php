@@ -80,8 +80,8 @@ class AuthController extends Controller
     public function updateProfile(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'username' => ['sometimes', 'string', 'max:255'],
-            'nickname' => ['sometimes', 'nullable', 'string', 'max:30', 'regex:/^[a-zA-Z0-9_]+$/'],
+            'username' => ['sometimes', 'string', 'min:3', 'max:30', 'regex:/^[a-zA-Z0-9_]+$/'],
+            'nickname' => ['sometimes', 'nullable', 'string', 'max:50'],
             'avatar' => ['sometimes', 'nullable', 'image', 'max:2048'],
             'preferences' => ['sometimes', 'array'],
             'preferences.include_adult' => ['sometimes', 'boolean'],
