@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Data\FavoriteData;
+use App\Data\WatchlistData;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -21,11 +23,11 @@ class UserProfileController extends Controller
 
         // Fetch their favorites
         $favorites = $user->favorites()->with('favoritable')->latest()->get()
-            ->map(fn($f) => \App\Data\FavoriteData::fromModel($f));
-            
+            ->map(fn ($f) => FavoriteData::fromModel($f));
+
         // Fetch their watchlist
         $watchlist = $user->watchlists()->with('watchlistable')->latest()->get()
-            ->map(fn($w) => \App\Data\WatchlistData::fromModel($w));
+            ->map(fn ($w) => WatchlistData::fromModel($w));
 
         return $this->success([
             'user' => $userData,

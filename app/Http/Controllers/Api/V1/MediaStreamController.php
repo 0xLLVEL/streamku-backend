@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Data\MediaData;
 use App\Http\Controllers\Controller;
 use App\Models\Episode;
 use App\Models\Media;
@@ -17,7 +18,7 @@ class MediaStreamController extends Controller
     public function movieMedia(Movie $movie): JsonResponse
     {
         $media = $movie->media()->with('quality')->get()
-            ->map(fn($m) => \App\Data\MediaData::from($m))
+            ->map(fn ($m) => MediaData::from($m))
             ->groupBy('collection');
 
         return $this->success($media);
@@ -26,7 +27,7 @@ class MediaStreamController extends Controller
     public function episodeMedia(TvShow $tvShow, Season $season, Episode $episode): JsonResponse
     {
         $media = $episode->media()->with('quality')->get()
-            ->map(fn($m) => \App\Data\MediaData::from($m))
+            ->map(fn ($m) => MediaData::from($m))
             ->groupBy('collection');
 
         return $this->success($media);

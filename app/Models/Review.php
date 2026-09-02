@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 #[Fillable([
     'user_id', 'reviewable_id', 'reviewable_type',
-    'rating', 'body',
+    'rating', 'body', 'is_approved',
 ])]
 class Review extends Model
 {

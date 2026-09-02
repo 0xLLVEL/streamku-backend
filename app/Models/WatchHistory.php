@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 #[Fillable([
     'user_id', 'watchable_id', 'watchable_type',
     'progress_seconds', 'duration_seconds', 'completed', 'last_watched_at',
-    'ip_address', 'country'
+    'ip_address', 'country',
 ])]
 class WatchHistory extends Model
 {

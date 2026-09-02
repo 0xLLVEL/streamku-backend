@@ -2,6 +2,9 @@
 
 namespace App\Data;
 
+use App\Models\Movie;
+use App\Models\TvShow;
+use App\Models\Watchlist;
 use Spatie\LaravelData\Data;
 
 /** @phpstan-consistent-constructor */
@@ -16,7 +19,7 @@ class WatchlistData extends Data
         public ?string $created_at = null,
     ) {}
 
-    public static function fromModel(\App\Models\Watchlist $watchlist): self
+    public static function fromModel(Watchlist $watchlist): self
     {
         $mediaDetails = null;
         if ($watchlist->relationLoaded('watchlistable') && $watchlist->watchlistable) {
@@ -32,8 +35,8 @@ class WatchlistData extends Data
             id: $watchlist->id,
             user_id: $watchlist->user_id,
             media_type: match ($watchlist->watchlistable_type) {
-                \App\Models\Movie::class => 'movie',
-                \App\Models\TvShow::class => 'tv_show',
+                Movie::class => 'movie',
+                TvShow::class => 'tv_show',
                 default => 'unknown',
             },
             media_id: $watchlist->watchlistable_id,

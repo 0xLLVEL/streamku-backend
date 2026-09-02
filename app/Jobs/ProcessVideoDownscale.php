@@ -12,7 +12,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
 
 class ProcessVideoDownscale implements ShouldQueue
@@ -60,7 +59,7 @@ class ProcessVideoDownscale implements ShouldQueue
 
             foreach ($qualities as $quality) {
                 $format = (new X264)->setKiloBitrate($quality->bitrate ?? 2000);
-                
+
                 $export->addFormat($format, function ($media) use ($quality) {
                     $media->scale($quality->width, $quality->height);
                 });
@@ -85,7 +84,7 @@ class ProcessVideoDownscale implements ShouldQueue
 
         } catch (\Throwable $e) {
             Log::error("Failed to export HLS for Media ID {$this->media->id}: ".$e->getMessage());
-            
+
             // Clean up partial HLS files
             if (Storage::disk('public')->exists($hlsDir)) {
                 Storage::disk('public')->deleteDirectory($hlsDir);

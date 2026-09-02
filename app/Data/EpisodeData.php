@@ -2,6 +2,7 @@
 
 namespace App\Data;
 
+use App\Models\Episode;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
@@ -28,7 +29,7 @@ class EpisodeData extends Data
         public ?WatchHistoryData $history = null,
     ) {}
 
-    public static function fromModel(\App\Models\Episode $episode): self
+    public static function fromModel(Episode $episode): self
     {
         return new self(
             id: $episode->id,
@@ -48,5 +49,3 @@ class EpisodeData extends Data
         );
     }
 }
-
-

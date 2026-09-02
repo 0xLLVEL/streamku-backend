@@ -21,6 +21,7 @@ class ReviewFactory extends Factory
             'reviewable_type' => Movie::class,
             'rating' => fake()->numberBetween(1, 10),
             'body' => fake()->optional(0.7)->paragraph(),
+            'is_approved' => true,
         ];
     }
 }

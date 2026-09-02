@@ -2,6 +2,9 @@
 
 namespace App\Data;
 
+use App\Models\Favorite;
+use App\Models\Movie;
+use App\Models\TvShow;
 use Spatie\LaravelData\Data;
 
 /** @phpstan-consistent-constructor */
@@ -16,7 +19,7 @@ class FavoriteData extends Data
         public ?string $created_at = null,
     ) {}
 
-    public static function fromModel(\App\Models\Favorite $favorite): self
+    public static function fromModel(Favorite $favorite): self
     {
         $mediaDetails = null;
         if ($favorite->relationLoaded('favoritable') && $favorite->favoritable) {
@@ -32,8 +35,8 @@ class FavoriteData extends Data
             id: $favorite->id,
             user_id: $favorite->user_id,
             media_type: match ($favorite->favoritable_type) {
-                \App\Models\Movie::class => 'movie',
-                \App\Models\TvShow::class => 'tv_show',
+                Movie::class => 'movie',
+                TvShow::class => 'tv_show',
                 default => 'unknown',
             },
             media_id: $favorite->favoritable_id,

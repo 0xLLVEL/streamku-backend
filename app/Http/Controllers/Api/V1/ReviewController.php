@@ -44,7 +44,7 @@ class ReviewController extends Controller
             ]
         );
 
-        $review->load('reviewable');
+        $review->load('user', 'reviewable');
 
         return $this->success(ReviewData::fromModel($review), null, 201);
     }
@@ -62,7 +62,7 @@ class ReviewController extends Controller
 
         $review->update(array_filter($validated, fn ($v) => $v !== null));
 
-        return $this->success(ReviewData::fromModel($review->fresh()));
+        return $this->success(ReviewData::fromModel($review->fresh()->load('user', 'reviewable')));
     }
 
     public function destroy(Review $review): JsonResponse
@@ -84,14 +84,23 @@ class ReviewController extends Controller
             return $this->error('Invalid type.', 422);
         }
 
-        $reviews = Review::with('user')
+        $query = Review::with('user')
             ->where('reviewable_type', $morphType->modelClass())
-            ->where('reviewable_id', $id)
-            ->latest()
-            ->paginate(20);
+            ->where('reviewable_id', $id);
 
-        $reviews->setCollection($reviews->getCollection()->map(fn ($r) => ReviewData::fromModel($r)));
+        $user = request()->user();
 
-        return $this->success($reviews->toArray());
+        $myReview = $user ? $query->clone()->where('user_id', $user->id)->first() : null;
+
+        $approved = $query->where('is_approved', true)->latest()->get();
+
+        return $this->success([
+            'media_type' => $mediaType,
+            'media_id' => $id,
+            'avg_rating' => $approved->avg('rating'),
+            'review_count' => $approved->count(),
+            'my_review' => $myReview ? ReviewData::fromModel($myReview) : null,
+            'reviews' => ReviewData::collect($approved),
+        ]);
     }
 }

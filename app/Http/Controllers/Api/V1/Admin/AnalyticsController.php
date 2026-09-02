@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Episode;
 use App\Models\Movie;
 use App\Models\Review;
 use App\Models\TvShow;
@@ -19,7 +20,7 @@ class AnalyticsController extends Controller
         $totalUsers = User::count();
         $totalMovies = Movie::count();
         $totalShows = TvShow::count();
-        
+
         $totalWatchSeconds = WatchHistory::sum('progress_seconds');
         $totalWatchHours = round($totalWatchSeconds / 3600, 2);
 
@@ -49,7 +50,7 @@ class AnalyticsController extends Controller
             ->limit(10)
             ->get();
 
-        $topShows = WatchHistory::where('watchable_type', \App\Models\Episode::class)
+        $topShows = WatchHistory::where('watchable_type', Episode::class)
             ->select('watchable_id', DB::raw('count(*) as views'), DB::raw('sum(progress_seconds) as total_watch_time'))
             ->groupBy('watchable_id')
             ->orderByDesc('views')
@@ -79,7 +80,7 @@ class AnalyticsController extends Controller
             ->groupBy('date')
             ->get()
             ->keyBy('date');
-            
+
         $reviews = Review::select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
             ->where('created_at', '>=', $startDate)
             ->groupBy('date')

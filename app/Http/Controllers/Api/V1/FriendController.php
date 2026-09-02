@@ -53,6 +53,7 @@ class FriendController extends Controller
             if ($incomingExists->status === 'pending') {
                 return $this->error('They have already sent you a request. Please accept it instead.', 422);
             }
+
             return $this->error('You are already friends.', 422);
         }
 
@@ -107,11 +108,11 @@ class FriendController extends Controller
         DB::table('friends')
             ->where(function ($query) use ($request, $friend) {
                 $query->where('user_id', $request->user()->id)
-                      ->where('friend_id', $friend->id);
+                    ->where('friend_id', $friend->id);
             })
             ->orWhere(function ($query) use ($request, $friend) {
                 $query->where('user_id', $friend->id)
-                      ->where('friend_id', $request->user()->id);
+                    ->where('friend_id', $request->user()->id);
             })
             ->delete();
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\ActivityFeedController;
 use App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BrowseController;
+use App\Http\Controllers\Api\V1\CommentController;
 use App\Http\Controllers\Api\V1\FriendController;
 use App\Http\Controllers\Api\V1\GenreController;
 use App\Http\Controllers\Api\V1\MediaStreamController;
@@ -52,6 +53,10 @@ Route::prefix('v1')->group(function () {
     Route::get('/genres', [GenreController::class, 'index'])->name('genres.index');
     Route::get('/genres/{genre:slug}', [GenreController::class, 'show'])->name('genres.show');
 
+    // Public read-only review & comment feeds (signed out can read)
+    Route::get('/reviews/{media_type}/{id}', [ReviewController::class, 'forTitle'])->name('reviews.for-title');
+    Route::get('/comments/{media_type}/{id}', [CommentController::class, 'forTitle'])->name('comments.for-title');
+
     Route::get('/users/{user}/profile', [UserProfileController::class, 'show'])->name('users.profile');
 
     // ── Authenticated ───────────────────────────────────────
@@ -85,7 +90,11 @@ Route::prefix('v1')->group(function () {
         Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
         Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
         Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
-        Route::get('/reviews/{media_type}/{id}', [ReviewController::class, 'forTitle'])->name('reviews.for-title');
+
+        // Comments
+        Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+        Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+        Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
         // Watch Parties
         Route::post('/watch-parties', [WatchPartyController::class, 'store'])->name('watch-parties.store');
@@ -168,6 +177,18 @@ Route::prefix('v1')->group(function () {
 
             // Qualities
             Route::apiResource('qualities', Admin\QualityController::class)->names('admin.qualities');
+
+            // Admin Reviews moderation
+            Route::get('/reviews', [Admin\ReviewController::class, 'index'])->name('admin.reviews.index');
+            Route::post('/reviews/{review}/approve', [Admin\ReviewController::class, 'approve'])->name('admin.reviews.approve');
+            Route::post('/reviews/{review}/hide', [Admin\ReviewController::class, 'hide'])->name('admin.reviews.hide');
+            Route::delete('/reviews/{review}', [Admin\ReviewController::class, 'destroy'])->name('admin.reviews.destroy');
+
+            // Admin Comments moderation
+            Route::get('/comments', [Admin\CommentController::class, 'index'])->name('admin.comments.index');
+            Route::post('/comments/{comment}/approve', [Admin\CommentController::class, 'approve'])->name('admin.comments.approve');
+            Route::post('/comments/{comment}/hide', [Admin\CommentController::class, 'hide'])->name('admin.comments.hide');
+            Route::delete('/comments/{comment}', [Admin\CommentController::class, 'destroy'])->name('admin.comments.destroy');
 
             // Media Management
             Route::get('/movies/{movie}/media', [Admin\MediaController::class, 'movieMedia'])->name('admin.movies.media');

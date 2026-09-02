@@ -5,7 +5,6 @@ namespace App\Notifications;
 use App\Models\TvShow;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class NewEpisodeReleased extends Notification implements ShouldQueue

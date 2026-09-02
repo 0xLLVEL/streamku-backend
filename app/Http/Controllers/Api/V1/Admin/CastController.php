@@ -16,7 +16,7 @@ class CastController extends Controller
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%'.$request->input('search').'%')
-                  ->orWhere('character', 'like', '%'.$request->input('search').'%');
+                ->orWhere('character', 'like', '%'.$request->input('search').'%');
         }
 
         $allowedSorts = ['name', 'character', 'id', 'created_at'];
@@ -33,6 +33,7 @@ class CastController extends Controller
     public function destroy(Cast $cast): JsonResponse
     {
         $cast->delete();
+
         return response()->json(null, 204);
     }
 }

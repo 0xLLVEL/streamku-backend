@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -68,7 +69,15 @@ class User extends Authenticatable
         return $this->hasMany(Review::class);
     }
 
-    public function friends(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    /**
+     * @return HasMany<Comment, $this>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function friends(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
             ->withPivot('status')
@@ -76,7 +85,7 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    public function pendingFriendRequests(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function pendingFriendRequests(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'friends', 'friend_id', 'user_id')
             ->withPivot('status')
@@ -84,7 +93,7 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    public function sentFriendRequests(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function sentFriendRequests(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
             ->withPivot('status')
