@@ -88,7 +88,7 @@ class ReviewController extends Controller
             ->where('reviewable_type', $morphType->modelClass())
             ->where('reviewable_id', $id);
 
-        $user = request()->user();
+        $user = \Auth::guard('sanctum')->user();
 
         $myReview = $user ? $query->clone()->where('user_id', $user->id)->first() : null;
 
