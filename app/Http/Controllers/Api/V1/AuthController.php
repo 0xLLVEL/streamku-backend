@@ -79,17 +79,33 @@ class AuthController extends Controller
 
     public function updateProfile(Request $request): JsonResponse
     {
+        $user = $request->user();
+
         $validated = $request->validate([
-            'username' => ['sometimes', 'string', 'min:3', 'max:30', 'regex:/^[a-zA-Z0-9_]+$/'],
+            'username' => ['sometimes', 'string', 'min:3', 'max:30', 'regex:/^[a-zA-Z0-9_]+$/', 'unique:users,username,'.$user->id],
             'nickname' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'email' => ['sometimes', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'avatar' => ['sometimes', 'nullable', 'image', 'max:2048'],
+            'current_password' => ['sometimes', 'nullable', 'string'],
+            'password' => ['sometimes', 'nullable', 'string', 'min:8', 'confirmed'],
             'preferences' => ['sometimes', 'array'],
             'preferences.include_adult' => ['sometimes', 'boolean'],
             'preferences.dark_mode' => ['sometimes', 'boolean'],
             'preferences.language' => ['sometimes', 'string', 'max:10'],
         ]);
 
-        $user = $request->user();
+        // Handle password change
+        if (! empty($validated['password'])) {
+            if (empty($validated['current_password']) || ! Hash::check($validated['current_password'], $user->password)) {
+                throw ValidationException::withMessages([
+                    'current_password' => ['Current password is incorrect.'],
+                ]);
+            }
+            $user->password = Hash::make($validated['password']);
+            unset($validated['password'], $validated['current_password'], $validated['password_confirmation']);
+        } else {
+            unset($validated['password'], $validated['current_password'], $validated['password_confirmation']);
+        }
 
         if ($request->hasFile('avatar')) {
             $path = $request->file('avatar')->store('avatars', 'public');
