@@ -38,5 +38,6 @@ class MovieData extends Data
         public ?string $created_at = null,
         public ?string $updated_at = null,
         public ?WatchHistoryData $history = null,
+        public ?array $images = null,
     ) {}
 }

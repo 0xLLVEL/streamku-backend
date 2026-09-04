@@ -44,5 +44,6 @@ class TvShowData extends Data
         public Lazy|array $videos,
         public ?string $created_at = null,
         public ?string $updated_at = null,
+        public ?array $images = null,
     ) {}
 }
