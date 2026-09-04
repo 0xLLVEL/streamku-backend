@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
-use App\Data\Requests\StoreSeasonData;
 use App\Http\Controllers\Controller;
 use App\Models\Season;
 use App\Models\TvShow;
@@ -25,9 +24,17 @@ class SeasonController extends Controller
         ]);
     }
 
-    public function store(StoreSeasonData $data, TvShow $tvShow): JsonResponse
+    public function store(Request $request, TvShow $tvShow): JsonResponse
     {
-        $season = $tvShow->seasons()->create($data->toArray());
+        $validated = $request->validate([
+            'season_number' => ['required', 'integer', 'min:0'],
+            'name' => ['required', 'string', 'max:255'],
+            'overview' => ['nullable', 'string'],
+            'poster_path' => ['nullable', 'string', 'max:500'],
+            'air_date' => ['nullable', 'date'],
+        ]);
+
+        $season = $tvShow->seasons()->create($validated);
 
         $tvShow->update(['number_of_seasons' => $tvShow->seasons()->count()]);
 

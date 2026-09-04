@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
-use App\Data\Requests\StoreMovieData;
 use App\Models\Movie;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class MovieController extends MediaAdminController
 {
@@ -58,8 +59,28 @@ class MovieController extends MediaAdminController
         return $this->showRelations();
     }
 
-    public function store(StoreMovieData $data): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        return $this->storeMedia($data->except('genre_ids')->toArray(), $data->genre_ids);
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'overview' => ['nullable', 'string'],
+            'tagline' => ['nullable', 'string', 'max:255'],
+            'poster_path' => ['nullable', 'string', 'max:500'],
+            'backdrop_path' => ['nullable', 'string', 'max:500'],
+            'release_date' => ['nullable', 'date'],
+            'runtime' => ['nullable', 'integer', 'min:1'],
+            'vote_average' => ['nullable', 'numeric', 'min:0', 'max:10'],
+            'original_language' => ['nullable', 'string', 'max:10'],
+            'status' => ['nullable', 'string', 'max:50'],
+            'trailer_url' => ['nullable', 'string', 'max:500'],
+            'is_featured' => ['boolean'],
+            'genre_ids' => ['array'],
+            'genre_ids.*' => ['integer', 'exists:genres,id'],
+        ]);
+
+        return $this->storeMedia(
+            Arr::except($validated, 'genre_ids'),
+            $validated['genre_ids'] ?? []
+        );
     }
 }

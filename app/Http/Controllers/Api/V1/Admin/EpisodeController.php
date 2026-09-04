@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
-use App\Data\Requests\StoreEpisodeData;
 use App\Http\Controllers\Controller;
 use App\Models\Episode;
 use App\Models\TvShow;
@@ -27,10 +26,19 @@ class EpisodeController extends Controller
         ]);
     }
 
-    public function store(StoreEpisodeData $data, TvShow $tvShow, int $season_number): JsonResponse
+    public function store(Request $request, TvShow $tvShow, int $season_number): JsonResponse
     {
+        $validated = $request->validate([
+            'episode_number' => ['required', 'integer', 'min:1'],
+            'name' => ['required', 'string', 'max:255'],
+            'overview' => ['nullable', 'string'],
+            'still_path' => ['nullable', 'string', 'max:500'],
+            'air_date' => ['nullable', 'date'],
+            'runtime' => ['nullable', 'integer', 'min:1'],
+        ]);
+
         $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
-        $episode = $season->episodes()->create($data->toArray());
+        $episode = $season->episodes()->create($validated);
 
         $season->update(['episode_count' => $season->episodes()->count()]);
         $tvShow->update(['number_of_episodes' => $tvShow->seasons()->withCount('episodes')->get()->sum('episodes_count')]);

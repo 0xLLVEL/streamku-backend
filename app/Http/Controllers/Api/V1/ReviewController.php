@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Data\Requests\StoreReviewData;
 use App\Data\ReviewData;
 use App\Enums\MediaType;
 use App\Http\Controllers\Controller;
@@ -25,9 +24,16 @@ class ReviewController extends Controller
         return $this->success($reviews->toArray());
     }
 
-    public function store(StoreReviewData $data): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        $morphType = MediaType::tryFrom($data->media_type);
+        $validated = $request->validate([
+            'media_id' => ['required', 'integer'],
+            'media_type' => ['required', 'string', 'in:movie,tv_show'],
+            'rating' => ['required', 'integer', 'min:1', 'max:10'],
+            'body' => ['nullable', 'string', 'max:5000'],
+        ]);
+
+        $morphType = MediaType::tryFrom($validated['media_type']);
 
         if (! $morphType) {
             return $this->error('Invalid media type.', 422);
@@ -35,12 +41,12 @@ class ReviewController extends Controller
 
         $review = request()->user()->reviews()->updateOrCreate(
             [
-                'reviewable_id' => $data->media_id,
+                'reviewable_id' => $validated['media_id'],
                 'reviewable_type' => $morphType->modelClass(),
             ],
             [
-                'rating' => $data->rating,
-                'body' => $data->body,
+                'rating' => $validated['rating'],
+                'body' => $validated['body'] ?? null,
             ]
         );
 

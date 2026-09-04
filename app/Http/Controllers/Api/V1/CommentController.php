@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Data\CommentData;
-use App\Data\Requests\StoreCommentData;
 use App\Enums\MediaType;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
@@ -46,19 +45,26 @@ class CommentController extends Controller
         ]);
     }
 
-    public function store(StoreCommentData $data): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        $morphType = MediaType::tryFrom($data->media_type);
+        $validated = $request->validate([
+            'media_id' => ['required', 'integer'],
+            'media_type' => ['required', 'string', 'in:movie,tv_show'],
+            'body' => ['required', 'string', 'max:5000'],
+            'parent_id' => ['nullable', 'integer', 'exists:comments,id'],
+        ]);
+
+        $morphType = MediaType::tryFrom($validated['media_type']);
 
         if (! $morphType) {
             return $this->error('Invalid media type.', 422);
         }
 
         $comment = request()->user()->comments()->create([
-            'commentable_id' => $data->media_id,
+            'commentable_id' => $validated['media_id'],
             'commentable_type' => $morphType->modelClass(),
-            'parent_id' => $data->parent_id,
-            'body' => $data->body,
+            'parent_id' => $validated['parent_id'] ?? null,
+            'body' => $validated['body'],
         ]);
 
         $comment->load('user');
