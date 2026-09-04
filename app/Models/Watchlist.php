@@ -30,4 +30,24 @@ class Watchlist extends Model
     {
         return $this->morphTo();
     }
+
+    public function toApiArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'user_id' => $this->user_id,
+            'media_type' => match ($this->watchlistable_type) {
+                'App\Models\Movie' => 'movie',
+                'App\Models\TvShow' => 'tv_show',
+                default => 'unknown',
+            },
+            'media_id' => $this->watchlistable_id,
+            'media_details' => $this->relationLoaded('watchlistable') ? [
+                'id' => $this->watchlistable->id,
+                'title' => $this->watchlistable->title ?? $this->watchlistable->name,
+                'poster_path' => $this->watchlistable->poster_path,
+                'slug' => $this->watchlistable->slug,
+            ] : null,
+        ];
+    }
 }

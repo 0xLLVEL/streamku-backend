@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Data\CommentData;
 use App\Enums\MediaType;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
@@ -41,7 +40,7 @@ class CommentController extends Controller
             'media_type' => $mediaType,
             'media_id' => $id,
             'total' => $base()->where('is_approved', true)->count(),
-            'comments' => CommentData::collect($comments),
+            'comments' => $comments->map->toApiArray(),
         ]);
     }
 
@@ -69,7 +68,7 @@ class CommentController extends Controller
 
         $comment->load('user');
 
-        return $this->success(CommentData::fromModel($comment), null, 201);
+        return $this->success($comment->toApiArray(), null, 201);
     }
 
     public function update(Request $request, Comment $comment): JsonResponse
@@ -84,7 +83,7 @@ class CommentController extends Controller
 
         $comment->update($validated);
 
-        return $this->success(CommentData::fromModel($comment->load('user')));
+        return $this->success($comment->load('user')->toApiArray());
     }
 
     public function destroy(Comment $comment): JsonResponse

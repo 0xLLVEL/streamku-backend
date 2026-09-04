@@ -33,4 +33,25 @@ class Review extends Model
     {
         return $this->morphTo();
     }
+
+    public function toApiArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'user_id' => $this->user_id,
+            'media_type' => match ($this->reviewable_type) {
+                Movie::class => 'movie',
+                TvShow::class => 'tv_show',
+                default => 'unknown',
+            },
+            'media_id' => $this->reviewable_id,
+            'rating' => $this->rating,
+            'body' => $this->body,
+            'user_name' => $this->relationLoaded('user') ? $this->user->username : null,
+            'user_avatar' => $this->relationLoaded('user') ? $this->user->avatar : null,
+            'user_nickname' => $this->relationLoaded('user') ? $this->user->nickname : null,
+            'created_at' => $this->created_at?->toIso8601String(),
+            'is_approved' => $this->is_approved ? true : false,
+        ];
+    }
 }

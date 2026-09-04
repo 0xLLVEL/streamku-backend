@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Data\GenreData;
 use App\Http\Controllers\Controller;
 use App\Models\Genre;
 use Illuminate\Http\JsonResponse;
@@ -13,7 +12,7 @@ class GenreController extends Controller
     {
         $genres = Genre::orderBy('name')->get();
 
-        return $this->success(GenreData::collect($genres));
+        return $this->success($genres->map->toApiArray());
     }
 
     public function show(Genre $genre): JsonResponse
@@ -22,7 +21,7 @@ class GenreController extends Controller
         $tvShows = $genre->tvShows()->orderByDesc('popularity')->limit(20)->get();
 
         return $this->success([
-            'genre' => GenreData::from($genre),
+            'genre' => $genre->toApiArray(),
             'movies' => $movies,
             'tv_shows' => $tvShows,
         ]);

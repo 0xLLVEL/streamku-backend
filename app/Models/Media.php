@@ -74,4 +74,24 @@ class Media extends Model
     {
         return Storage::disk($this->disk)->delete($this->path);
     }
+
+    public function toApiArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'type' => $this->type,
+            'collection' => $this->collection,
+            'quality' => $this->quality?->toApiArray(),
+            'url' => $this->url,
+            'original_filename' => $this->original_filename,
+            'mime_type' => $this->mime_type,
+            'size' => $this->size,
+            'duration' => $this->duration,
+            'width' => $this->width,
+            'height' => $this->height,
+            'is_primary' => $this->is_primary ? true : false,
+            'metadata' => $this->metadata,
+            'created_at' => $this->created_at?->toJson(),
+        ];
+    }
 }

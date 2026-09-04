@@ -29,4 +29,14 @@ class Genre extends Model
     {
         return $this->belongsToMany(TvShow::class);
     }
+
+    public function toApiArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'tmdb_id' => $this->tmdb_id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+        ];
+    }
 }

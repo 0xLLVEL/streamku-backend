@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Data\ReviewData;
 use App\Enums\MediaType;
 use App\Http\Controllers\Controller;
 use App\Models\Review;
@@ -19,7 +18,7 @@ class ReviewController extends Controller
             ->latest()
             ->paginate(20);
 
-        $reviews->setCollection($reviews->getCollection()->map(fn ($r) => ReviewData::fromModel($r)));
+        $reviews->setCollection($reviews->getCollection()->map(fn ($r) => $r->toApiArray()));
 
         return $this->success($reviews->toArray());
     }
@@ -52,7 +51,7 @@ class ReviewController extends Controller
 
         $review->load('user', 'reviewable');
 
-        return $this->success(ReviewData::fromModel($review), null, 201);
+        return $this->success($review->toApiArray(), null, 201);
     }
 
     public function update(Request $request, Review $review): JsonResponse
@@ -68,7 +67,7 @@ class ReviewController extends Controller
 
         $review->update(array_filter($validated, fn ($v) => $v !== null));
 
-        return $this->success(ReviewData::fromModel($review->fresh()->load('user', 'reviewable')));
+        return $this->success($review->fresh()->load('user', 'reviewable')->toApiArray());
     }
 
     public function destroy(Review $review): JsonResponse
@@ -105,8 +104,8 @@ class ReviewController extends Controller
             'media_id' => $id,
             'avg_rating' => $approved->avg('rating'),
             'review_count' => $approved->count(),
-            'my_review' => $myReview ? ReviewData::fromModel($myReview) : null,
-            'reviews' => ReviewData::collect($approved),
+            'my_review' => $myReview ? $myReview->toApiArray() : null,
+            'reviews' => $approved->map->toApiArray(),
         ]);
     }
 }

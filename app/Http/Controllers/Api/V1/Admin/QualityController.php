@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
-use App\Data\QualityData;
 use App\Http\Controllers\Controller;
 use App\Models\Quality;
 use Illuminate\Http\JsonResponse;
@@ -13,7 +12,7 @@ class QualityController extends Controller
     public function index(): JsonResponse
     {
         return response()->json([
-            'data' => QualityData::collect(Quality::orderBy('sort_order')->get()),
+            'data' => Quality::orderBy('sort_order')->get()->map->toApiArray(),
         ]);
     }
 
@@ -30,12 +29,12 @@ class QualityController extends Controller
 
         $quality = Quality::create($validated);
 
-        return $this->success(QualityData::from($quality), null, 201);
+        return $this->success($quality->toApiArray(), null, 201);
     }
 
     public function show(Quality $quality): JsonResponse
     {
-        return $this->success(QualityData::from($quality));
+        return $this->success($quality->toApiArray());
     }
 
     public function update(Request $request, Quality $quality): JsonResponse
@@ -51,7 +50,7 @@ class QualityController extends Controller
 
         $quality->update(array_filter($validated, fn ($v) => $v !== null));
 
-        return $this->success(QualityData::from($quality->fresh()));
+        return $this->success($quality->fresh()->toApiArray());
     }
 
     public function destroy(Quality $quality): JsonResponse

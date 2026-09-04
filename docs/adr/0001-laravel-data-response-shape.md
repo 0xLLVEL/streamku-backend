@@ -1,5 +1,0 @@
-# 0001 — Spatie Data + `success()`/`error()` JSON shape instead of Eloquent API Resources
-
-REST responses use Spatie Laravel Data DTOs (`app/Data/`) returned through the `ApiResponses` trait (`$this->success()`/`$this->error()`), which shapes every payload as `{ "success": true, "data": ..., "meta": ... }`, unwrapping paginators into `data` + `meta`. We deliberately do not use Eloquent API Resources, the Laravel default.
-
-We picked DTOs because they give compile-time shape guarantees and a single place to change response contracts across ~15 controllers, and the shared envelope keeps the client's handling uniform. API Resources were rejected because per-model resource classes fragment the shape logic and offer no type safety on the payload. Changing this later means touching every endpoint, so double-check the client before relaxing it.

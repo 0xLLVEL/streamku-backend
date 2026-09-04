@@ -50,4 +50,20 @@ class Season extends Model
     {
         return $this->hasMany(Episode::class);
     }
+
+    public function toApiArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'tmdb_id' => $this->tmdb_id,
+            'tv_show_id' => $this->tv_show_id,
+            'season_number' => $this->season_number,
+            'name' => $this->name,
+            'overview' => $this->overview,
+            'poster_path' => $this->poster_path,
+            'air_date' => $this->air_date?->format('Y-m-d'),
+            'episode_count' => $this->episode_count,
+            'episodes' => $this->relationLoaded('episodes') ? $this->episodes->map->toApiArray() : null,
+        ];
+    }
 }

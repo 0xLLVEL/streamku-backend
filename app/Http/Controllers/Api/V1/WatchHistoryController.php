@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Data\WatchHistoryData;
 use App\Enums\MediaType;
 use App\Http\Controllers\Controller;
 use App\Models\Episode;
@@ -19,7 +18,7 @@ class WatchHistoryController extends Controller
             ->latest('last_watched_at')
             ->paginate(20);
 
-        $history->setCollection($history->getCollection()->map(fn ($h) => WatchHistoryData::fromModel($h)));
+        $history->setCollection($history->getCollection()->map(fn ($h) => $h->toApiArray()));
 
         return $this->success($history->toArray());
     }
@@ -57,7 +56,7 @@ class WatchHistoryController extends Controller
             ]
         );
 
-        return $this->success(WatchHistoryData::fromModel($history));
+        return $this->success($history->toApiArray());
     }
 
     public function continueWatching(): JsonResponse
@@ -75,8 +74,6 @@ class WatchHistoryController extends Controller
             ->limit(20)
             ->get();
 
-        return $this->success(WatchHistoryData::collect(
-            $items->map(fn ($h) => WatchHistoryData::fromModel($h))
-        ));
+        return $this->success($items->map->toApiArray());
     }
 }

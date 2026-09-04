@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
-use App\Contracts\TmdbPort;
+use App\Services\TmdbClient;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class TmdbSearchController extends Controller
 {
     public function __construct(
-        private TmdbPort $client,
+        private TmdbClient $client,
     ) {}
 
     public function search(Request $request): JsonResponse

@@ -107,4 +107,19 @@ class User extends Authenticatable
             ->wherePivot('status', 'pending')
             ->withTimestamps();
     }
+
+    public function toApiArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'username' => $this->username,
+            'email' => $this->email,
+            'is_admin' => $this->is_admin,
+            'preferences' => $this->preferences,
+            'created_at' => $this->created_at?->toIso8601String(),
+            'avatar' => $this->avatar,
+            'nickname' => $this->nickname,
+            'name' => $this->username, // BC alias
+        ];
+    }
 }

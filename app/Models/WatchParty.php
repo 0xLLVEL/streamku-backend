@@ -28,4 +28,25 @@ class WatchParty extends Model
     {
         return $this->belongsToMany(User::class, 'watch_party_users')->withTimestamps();
     }
+
+    public function toApiArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'host_id' => $this->host_id,
+            'media_type' => match ($this->mediable_type) {
+                'App\Models\Movie' => 'movie',
+                'App\Models\Episode' => 'episode',
+                default => 'unknown',
+            },
+            'media_id' => $this->mediable_id,
+            'members' => $this->relationLoaded('members') ? $this->members->map(fn ($user) => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'nickname' => $user->nickname,
+                'avatar' => $user->avatar,
+            ])->toArray() : null,
+            'created_at' => $this->created_at?->toIso8601String(),
+        ];
+    }
 }
