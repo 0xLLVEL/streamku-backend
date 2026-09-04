@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
-use App\Data\Requests\StoreCastData;
 use App\Http\Controllers\Controller;
 use App\Models\Cast;
 use App\Models\Movie;
 use App\Models\TvShow;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class MediaCastController extends Controller
 {
@@ -16,18 +16,32 @@ class MediaCastController extends Controller
         return $this->success($this->parent()->cast()->orderBy('order')->get());
     }
 
-    public function store(StoreCastData $data): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        $cast = $this->parent()->cast()->create($data->toArray());
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'character' => ['nullable', 'string', 'max:255'],
+            'profile_path' => ['nullable', 'string', 'max:500'],
+            'order' => ['integer', 'min:0'],
+        ]);
+
+        $cast = $this->parent()->cast()->create($validated);
 
         return $this->success($cast, null, 201);
     }
 
-    public function update(StoreCastData $data): JsonResponse
+    public function update(Request $request): JsonResponse
     {
         $cast = $this->cast();
 
-        $cast->update(array_filter($data->toArray(), fn ($v) => $v !== null));
+        $validated = $request->validate([
+            'name' => ['sometimes', 'string', 'max:255'],
+            'character' => ['nullable', 'string', 'max:255'],
+            'profile_path' => ['nullable', 'string', 'max:500'],
+            'order' => ['sometimes', 'integer', 'min:0'],
+        ]);
+
+        $cast->update(array_filter($validated, fn ($v) => $v !== null));
 
         return $this->success($cast->fresh());
     }

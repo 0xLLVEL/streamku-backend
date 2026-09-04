@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
-use App\Data\Requests\StoreVideoData;
 use App\Http\Controllers\Controller;
 use App\Models\Episode;
 use App\Models\Movie;
 use App\Models\TvShow;
 use App\Models\Video;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class VideoController extends Controller
 {
@@ -17,18 +17,32 @@ class VideoController extends Controller
         return $this->success($this->parent()->videos);
     }
 
-    public function store(StoreVideoData $data): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        $video = $this->parent()->videos()->create($data->toArray());
+        $validated = $request->validate([
+            'key' => ['required', 'string', 'max:255'],
+            'site' => ['required', 'string', 'max:50'],
+            'name' => ['required', 'string', 'max:255'],
+            'official' => ['boolean'],
+        ]);
+
+        $video = $this->parent()->videos()->create($validated);
 
         return $this->success($video, null, 201);
     }
 
-    public function update(StoreVideoData $data): JsonResponse
+    public function update(Request $request): JsonResponse
     {
         $video = $this->video();
 
-        $video->update(array_filter($data->toArray(), fn ($v) => $v !== null));
+        $validated = $request->validate([
+            'key' => ['sometimes', 'string', 'max:255'],
+            'site' => ['sometimes', 'string', 'max:50'],
+            'name' => ['sometimes', 'string', 'max:255'],
+            'official' => ['boolean'],
+        ]);
+
+        $video->update(array_filter($validated, fn ($v) => $v !== null));
 
         return $this->success($video->fresh());
     }

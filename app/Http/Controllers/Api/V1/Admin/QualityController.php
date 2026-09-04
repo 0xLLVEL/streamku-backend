@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Data\QualityData;
-use App\Data\Requests\StoreQualityData;
 use App\Http\Controllers\Controller;
 use App\Models\Quality;
 use Illuminate\Http\JsonResponse;
@@ -18,9 +17,18 @@ class QualityController extends Controller
         ]);
     }
 
-    public function store(StoreQualityData $data): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        $quality = Quality::create($data->toArray());
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:50', 'unique:qualities,name'],
+            'label' => ['required', 'string', 'max:100'],
+            'width' => ['required', 'integer', 'min:1'],
+            'height' => ['required', 'integer', 'min:1'],
+            'bitrate' => ['nullable', 'integer', 'min:1'],
+            'sort_order' => ['integer', 'min:0'],
+        ]);
+
+        $quality = Quality::create($validated);
 
         return $this->success(QualityData::from($quality), null, 201);
     }

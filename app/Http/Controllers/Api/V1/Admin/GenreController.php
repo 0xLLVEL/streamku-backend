@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Data\GenreData;
-use App\Data\Requests\StoreGenreData;
 use App\Http\Controllers\Controller;
 use App\Models\Genre;
 use Illuminate\Http\JsonResponse;
@@ -31,11 +30,15 @@ class GenreController extends Controller
         return response()->json($query->paginate($perPage)->toArray());
     }
 
-    public function store(StoreGenreData $data): JsonResponse
+    public function store(Request $request): JsonResponse
     {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:genres,name'],
+        ]);
+
         $genre = Genre::create([
-            'name' => $data->name,
-            'slug' => Str::slug($data->name),
+            'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']),
         ]);
 
         return response()->json(['data' => GenreData::from($genre)], 201);

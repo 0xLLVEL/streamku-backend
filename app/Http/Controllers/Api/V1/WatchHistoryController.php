@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Data\Requests\StoreWatchHistoryData;
 use App\Data\WatchHistoryData;
 use App\Enums\MediaType;
 use App\Http\Controllers\Controller;
 use App\Models\Episode;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class WatchHistoryController extends Controller
 {
@@ -24,9 +24,17 @@ class WatchHistoryController extends Controller
         return $this->success($history->toArray());
     }
 
-    public function store(StoreWatchHistoryData $data): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        $morphType = MediaType::tryFrom($data->media_type);
+        $validated = $request->validate([
+            'media_id' => ['required', 'integer'],
+            'media_type' => ['required', 'string', 'in:movie,episode'],
+            'progress_seconds' => ['integer', 'min:0'],
+            'duration_seconds' => ['integer', 'min:0'],
+            'completed' => ['boolean'],
+        ]);
+
+        $morphType = MediaType::tryFrom($validated['media_type']);
 
         if (! $morphType) {
             return $this->error('Invalid media type.', 422);
@@ -36,16 +44,16 @@ class WatchHistoryController extends Controller
 
         $history = request()->user()->watchHistories()->updateOrCreate(
             [
-                'watchable_id' => $data->media_id,
+                'watchable_id' => $validated['media_id'],
                 'watchable_type' => $morphType->modelClass(),
             ],
             [
-                'progress_seconds' => $data->progress_seconds,
-                'duration_seconds' => $data->duration_seconds,
-                'completed' => $data->completed,
+                'progress_seconds' => $validated['progress_seconds'] ?? 0,
+                'duration_seconds' => $validated['duration_seconds'] ?? 0,
+                'completed' => $validated['completed'] ?? false,
                 'last_watched_at' => now(),
                 'ip_address' => $ip,
-                'country' => null, // ponytail: stevebauman/location removed — sync blocking + external lookup; add async job if needed
+                'country' => null,
             ]
         );
 

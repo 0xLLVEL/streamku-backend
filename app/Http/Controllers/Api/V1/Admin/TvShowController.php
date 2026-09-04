@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
-use App\Data\Requests\StoreTvShowData;
 use App\Models\TvShow;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class TvShowController extends MediaAdminController
 {
@@ -57,8 +58,27 @@ class TvShowController extends MediaAdminController
         return ['genres', 'cast', 'videos', 'seasons'];
     }
 
-    public function store(StoreTvShowData $data): JsonResponse
+    public function store(Request $request): JsonResponse
     {
-        return $this->storeMedia($data->except('genre_ids')->toArray(), $data->genre_ids);
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'overview' => ['nullable', 'string'],
+            'tagline' => ['nullable', 'string', 'max:255'],
+            'poster_path' => ['nullable', 'string', 'max:500'],
+            'backdrop_path' => ['nullable', 'string', 'max:500'],
+            'first_air_date' => ['nullable', 'date'],
+            'status' => ['nullable', 'string', 'max:50'],
+            'type' => ['nullable', 'string', 'max:50'],
+            'episode_run_time' => ['nullable', 'integer', 'min:1'],
+            'trailer_url' => ['nullable', 'string', 'max:500'],
+            'is_featured' => ['boolean'],
+            'genre_ids' => ['array'],
+            'genre_ids.*' => ['integer', 'exists:genres,id'],
+        ]);
+
+        return $this->storeMedia(
+            Arr::except($validated, 'genre_ids'),
+            $validated['genre_ids'] ?? []
+        );
     }
 }
