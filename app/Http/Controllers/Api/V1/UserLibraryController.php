@@ -38,7 +38,7 @@ class UserLibraryController extends Controller
             'media_type' => ['required', 'string', 'in:movie,tv_show'],
         ]);
 
-        $morphType = MediaType::fromString($validated['media_type']);
+        $morphType = MediaType::tryFrom($validated['media_type']);
 
         if (! $morphType) {
             return $this->error('Invalid media type.', 422);

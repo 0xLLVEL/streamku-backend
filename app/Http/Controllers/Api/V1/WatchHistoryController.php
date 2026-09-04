@@ -8,7 +8,6 @@ use App\Enums\MediaType;
 use App\Http\Controllers\Controller;
 use App\Models\Episode;
 use Illuminate\Http\JsonResponse;
-use Stevebauman\Location\Facades\Location;
 
 class WatchHistoryController extends Controller
 {
@@ -27,14 +26,13 @@ class WatchHistoryController extends Controller
 
     public function store(StoreWatchHistoryData $data): JsonResponse
     {
-        $morphType = MediaType::fromString($data->media_type);
+        $morphType = MediaType::tryFrom($data->media_type);
 
         if (! $morphType) {
             return $this->error('Invalid media type.', 422);
         }
 
         $ip = request()->ip();
-        $position = Location::get($ip);
 
         $history = request()->user()->watchHistories()->updateOrCreate(
             [
@@ -47,7 +45,7 @@ class WatchHistoryController extends Controller
                 'completed' => $data->completed,
                 'last_watched_at' => now(),
                 'ip_address' => $ip,
-                'country' => $position ? $position->countryCode : null,
+                'country' => null, // ponytail: stevebauman/location removed — sync blocking + external lookup; add async job if needed
             ]
         );
 

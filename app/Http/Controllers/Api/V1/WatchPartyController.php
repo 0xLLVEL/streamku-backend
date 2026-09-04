@@ -19,7 +19,7 @@ class WatchPartyController extends Controller
             'media_id' => 'required|integer',
         ]);
 
-        $morphType = MediaType::fromString($validated['media_type']);
+        $morphType = MediaType::tryFrom($validated['media_type']);
         if (! $morphType) {
             return $this->error('Invalid media type.', 422);
         }

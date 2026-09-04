@@ -14,7 +14,7 @@ class CommentController extends Controller
 {
     public function forTitle(string $mediaType, int $id): JsonResponse
     {
-        $morphType = MediaType::fromString($mediaType);
+        $morphType = MediaType::tryFrom($mediaType);
 
         if (! $morphType) {
             return $this->error('Invalid type.', 422);
@@ -48,7 +48,7 @@ class CommentController extends Controller
 
     public function store(StoreCommentData $data): JsonResponse
     {
-        $morphType = MediaType::fromString($data->media_type);
+        $morphType = MediaType::tryFrom($data->media_type);
 
         if (! $morphType) {
             return $this->error('Invalid media type.', 422);

@@ -3,7 +3,6 @@
 use App\Jobs\ProcessVideoDownscale;
 use App\Models\Media;
 use App\Models\Quality;
-use App\Services\ChunkedUploadService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 
@@ -36,10 +35,6 @@ test('job respects quality boundaries', function () {
 test('downscale is dispatched when video upload completes', function () {
     Queue::fake();
 
-    $uploadService = app(ChunkedUploadService::class);
-
-    // We mock the service in integration tests usually, but let's just ensure we dispatch it
-    // if we manually dispatch it.
     ProcessVideoDownscale::dispatch(Media::factory()->create(['type' => 'video']));
 
     Queue::assertPushed(ProcessVideoDownscale::class);

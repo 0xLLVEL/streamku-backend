@@ -11,21 +11,19 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Stevebauman\Location\Facades\Location;
 
 class AuthController extends Controller
 {
     public function register(RegisterData $data): JsonResponse
     {
         $ip = request()->ip();
-        $position = Location::get($ip);
 
         $user = User::create([
             'username' => $data->username,
             'email' => $data->email,
             'password' => $data->password,
             'ip_address' => $ip,
-            'country' => $position ? $position->countryCode : null,
+            'country' => null, // ponytail: location lookup removed
         ]);
         $user->refresh();
 
@@ -50,11 +48,10 @@ class AuthController extends Controller
         $token = $user->createToken('auth-token')->plainTextToken;
 
         $ip = request()->ip();
-        $position = Location::get($ip);
 
         $user->update([
             'ip_address' => $ip,
-            'country' => $position ? $position->countryCode : null,
+            'country' => null,
         ]);
 
         return $this->success([

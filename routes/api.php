@@ -168,13 +168,7 @@ Route::prefix('v1')->group(function () {
             Route::put('/tv-shows/{tvShow}/seasons/{season_number}/episodes/{episode_number}/videos/{video}', [Admin\VideoController::class, 'update'])->name('admin.episodes.videos.update');
             Route::delete('/tv-shows/{tvShow}/seasons/{season_number}/episodes/{episode_number}/videos/{video}', [Admin\VideoController::class, 'destroy'])->name('admin.episodes.videos.destroy');
 
-            // Uploads (Chunked)
-            Route::get('/uploads', [Admin\UploadController::class, 'index'])->name('admin.uploads.index');
-            Route::post('/uploads/initiate', [Admin\UploadController::class, 'initiate'])->name('admin.uploads.initiate');
-            Route::post('/uploads/{upload:upload_id}/chunks', [Admin\UploadController::class, 'chunk'])->name('admin.uploads.chunk');
-            Route::get('/uploads/{upload:upload_id}/status', [Admin\UploadController::class, 'status'])->name('admin.uploads.status');
-            Route::post('/uploads/{upload:upload_id}/complete', [Admin\UploadController::class, 'complete'])->name('admin.uploads.complete');
-            Route::delete('/uploads/{upload:upload_id}', [Admin\UploadController::class, 'cancel'])->name('admin.uploads.cancel');
+            // ponytail: chunked /uploads removed — tus at /admin/tus covers it (arthurpatriot/laravel-tus)
 
             // Qualities
             Route::apiResource('qualities', Admin\QualityController::class)->names('admin.qualities');
