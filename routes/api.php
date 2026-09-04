@@ -197,6 +197,9 @@ Route::prefix('v1')->group(function () {
             Route::delete('/media/{media}', [Admin\MediaController::class, 'destroy'])->name('admin.media.destroy');
             Route::patch('/media/{media}/primary', [Admin\MediaController::class, 'setPrimary'])->name('admin.media.primary');
 
+            // Images (poster/backdrop upload)
+            Route::post('/images/upload', [Admin\ImageController::class, 'upload'])->name('admin.images.upload');
+
             // Subtitles (OpenSubtitles + manual)
             Route::get('/subtitles/search', [Admin\SubtitleController::class, 'search'])->name('admin.subtitles.search');
             Route::post('/subtitles/import', [Admin\SubtitleController::class, 'import'])->name('admin.subtitles.import');
