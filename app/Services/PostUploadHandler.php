@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Jobs\ProcessVideoDownscale;
 use App\Models\Episode;
 use App\Models\Media;
 use App\Models\Movie;
@@ -104,18 +103,16 @@ class PostUploadHandler
             ]);
         });
 
-        $this->dispatchDownscaleAndNotify($media);
+        $this->notifyWatchers($media);
 
         return $media->load('quality');
     }
 
-    private function dispatchDownscaleAndNotify(Media $media): void
+    private function notifyWatchers(Media $media): void
     {
         if ($media->type !== 'video') {
             return;
         }
-
-        ProcessVideoDownscale::dispatch($media);
 
         if ($media->mediable_type !== Episode::class) {
             return;

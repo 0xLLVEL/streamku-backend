@@ -16,7 +16,6 @@
         "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
-        "pbmedia/laravel-ffmpeg": "^8.9",
         "spatie/laravel-data": "^4.23"
     },
     "require-dev": {
