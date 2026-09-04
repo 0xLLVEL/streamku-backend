@@ -160,6 +160,7 @@ Route::prefix('v1')->group(function () {
 
             // Admin Episodes
             Route::post('/tv-shows/{tvShow}/seasons/{season_number}/episodes/bulk-vidking', [Admin\EpisodeController::class, 'bulkVidking'])->name('admin.episodes.bulk-vidking');
+            Route::post('/tv-shows/{tvShow}/seasons/{season_number}/episodes/bulk-embed', [Admin\EpisodeController::class, 'bulkVidking'])->name('admin.episodes.bulk-embed');
             Route::get('/episodes', [Admin\EpisodeController::class, 'all'])->name('admin.episodes.all');
             Route::apiResource('tv-shows.seasons.episodes', Admin\EpisodeController::class)->names('admin.tv-shows.seasons.episodes')->parameters(['tv-shows' => 'tvShow', 'seasons' => 'season_number', 'episodes' => 'episode_number']);
             Route::get('/tv-shows/{tvShow}/seasons/{season_number}/episodes/{episode_number}/videos', [Admin\VideoController::class, 'index'])->name('admin.episodes.videos.index');
@@ -195,6 +196,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/tv-shows/{tvShow}/seasons/{season}/episodes/{episode}/media', [Admin\MediaController::class, 'episodeMedia'])->name('admin.episodes.media');
             Route::delete('/media/{media}', [Admin\MediaController::class, 'destroy'])->name('admin.media.destroy');
             Route::patch('/media/{media}/primary', [Admin\MediaController::class, 'setPrimary'])->name('admin.media.primary');
+
+            // Subtitles (OpenSubtitles + manual)
+            Route::get('/subtitles/search', [Admin\SubtitleController::class, 'search'])->name('admin.subtitles.search');
+            Route::post('/subtitles/import', [Admin\SubtitleController::class, 'import'])->name('admin.subtitles.import');
 
             // TMDB Search & Import
             Route::prefix('tmdb')->group(function () {

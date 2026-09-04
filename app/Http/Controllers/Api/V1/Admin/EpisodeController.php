@@ -40,13 +40,15 @@ class EpisodeController extends Controller
 
     public function bulkVidking(Request $request, TvShow $tvShow, int $season_number): JsonResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'total_episodes' => 'required|integer|min:1|max:1000',
+            'site' => 'sometimes|string|max:50|in:VidKing,VixSrc,VidSrcCc,VidSrcMe,SuperEmbed,2Embed,EmbedSu,AutoEmbed,VidLink',
         ]);
 
         $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
         $total = $request->integer('total_episodes');
-        $vidkingKey = $tvShow->tmdb_id ?? $tvShow->slug;
+        $site = $validated['site'] ?? 'VidKing';
+        $key = (string) ($tvShow->tmdb_id ?? $tvShow->slug);
 
         for ($i = 1; $i <= $total; $i++) {
             $episode = $season->episodes()->firstOrCreate(
@@ -55,9 +57,9 @@ class EpisodeController extends Controller
             );
 
             $episode->videos()->firstOrCreate(
-                ['site' => 'VidKing'],
+                ['site' => $site],
                 [
-                    'key' => (string) $vidkingKey,
+                    'key' => $key,
                     'name' => "Episode $i",
                     'official' => false,
                 ]

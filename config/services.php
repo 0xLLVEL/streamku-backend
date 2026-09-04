@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'opensubtitles' => [
+        'base_url' => env('OPENSUBTITLES_BASE_URL', 'https://api.opensubtitles.com/api/v1'),
+        'api_key' => env('OPENSUBTITLES_API_KEY'),
+        'username' => env('OPENSUBTITLES_USERNAME'),
+        'password' => env('OPENSUBTITLES_PASSWORD'),
+    ],
+
 ];
