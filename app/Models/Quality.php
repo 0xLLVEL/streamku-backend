@@ -21,4 +21,17 @@ class Quality extends Model
     {
         return $this->hasMany(Media::class);
     }
+
+    public function toApiArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'label' => $this->label,
+            'width' => $this->width,
+            'height' => $this->height,
+            'bitrate' => $this->bitrate,
+            'sort_order' => $this->sort_order,
+        ];
+    }
 }

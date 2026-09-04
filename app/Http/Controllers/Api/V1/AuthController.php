@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Data\Auth\UserData;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -34,7 +33,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return $this->success([
-            'user' => UserData::from($user),
+            'user' => $user->toApiArray(),
             'token' => $token,
         ], null, 201);
     }
@@ -64,7 +63,7 @@ class AuthController extends Controller
         ]);
 
         return $this->success([
-            'user' => UserData::from($user),
+            'user' => $user->toApiArray(),
             'token' => $token,
         ]);
     }
@@ -79,7 +78,7 @@ class AuthController extends Controller
     public function me(): JsonResponse
     {
         return $this->success([
-            'user' => UserData::from(request()->user()),
+            'user' => request()->user()->toApiArray(),
         ]);
     }
 
@@ -129,7 +128,7 @@ class AuthController extends Controller
         $user->save();
 
         return $this->success([
-            'user' => UserData::from($user),
+            'user' => $user->toApiArray(),
         ], 'Profile updated successfully.');
     }
 }

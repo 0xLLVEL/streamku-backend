@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Data\FavoriteData;
-use App\Data\WatchlistData;
 use App\Enums\MediaType;
 use App\Http\Controllers\Controller;
 use App\Models\Favorite;
@@ -11,7 +9,6 @@ use App\Models\Watchlist;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Spatie\LaravelData\Data;
 
 class UserLibraryController extends Controller
 {
@@ -24,7 +21,7 @@ class UserLibraryController extends Controller
             ->latest()
             ->paginate(20);
 
-        $items->setCollection($items->getCollection()->map(fn ($i) => $lib['data']::fromModel($i)));
+        $items->setCollection($items->getCollection()->map(fn ($i) => $i->toApiArray()));
 
         return $this->success($items->toArray());
     }
@@ -51,7 +48,7 @@ class UserLibraryController extends Controller
 
         $item->load($lib['morph']);
 
-        return $this->success($lib['data']::fromModel($item), null, 201);
+        return $this->success($item->toApiArray(), null, 201);
     }
 
     public function destroy(Request $request, int $item): JsonResponse
@@ -75,7 +72,6 @@ class UserLibraryController extends Controller
             ? [
                 'relation' => 'favorites',
                 'morph' => 'favoritable',
-                'data' => FavoriteData::class,
                 'model' => Favorite::class,
                 'id_column' => 'favoritable_id',
                 'type_column' => 'favoritable_type',
@@ -83,7 +79,6 @@ class UserLibraryController extends Controller
             : [
                 'relation' => 'watchlists',
                 'morph' => 'watchlistable',
-                'data' => WatchlistData::class,
                 'model' => Watchlist::class,
                 'id_column' => 'watchlistable_id',
                 'type_column' => 'watchlistable_type',

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Data\FavoriteData;
+
 use App\Data\WatchlistData;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -25,11 +25,11 @@ class UserProfileController extends Controller
 
         // Fetch their favorites
         $favorites = $user->favorites()->with('favoritable')->latest()->get()
-            ->map(fn ($f) => FavoriteData::fromModel($f));
+            ->map(fn ($f) => $f->toApiArray());
 
         // Fetch their watchlist
         $watchlist = $user->watchlists()->with('watchlistable')->latest()->get()
-            ->map(fn ($w) => WatchlistData::fromModel($w));
+            ->map(fn ($w) => $w->toApiArray());
 
         return $this->success([
             'user' => $userData,

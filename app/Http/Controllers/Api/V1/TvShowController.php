@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Data\EpisodeData;
-use App\Data\SeasonData;
-use App\Data\TvShowData;
 use App\Http\Controllers\Controller;
 use App\Models\TvShow;
 use Illuminate\Http\JsonResponse;
@@ -47,14 +44,14 @@ class TvShowController extends Controller
             ]);
         }
 
-        return $this->success(TvShowData::from($tvShow));
+        return $this->success($tvShow->toApiArray());
     }
 
     public function season(TvShow $tvShow, int $season_number): JsonResponse
     {
         $season = $tvShow->seasons()->where('season_number', $season_number)->with(['episodes.videos', 'episodes.season'])->firstOrFail();
 
-        return $this->success(SeasonData::from($season));
+        return $this->success($season->toApiArray());
     }
 
     public function episode(TvShow $tvShow, int $season_number, int $episode_number): JsonResponse
@@ -62,7 +59,7 @@ class TvShowController extends Controller
         $season = $tvShow->seasons()->where('season_number', $season_number)->firstOrFail();
         $episode = $season->episodes()->where('episode_number', $episode_number)->with(['videos', 'season'])->firstOrFail();
 
-        return $this->success(EpisodeData::from($episode));
+        return $this->success($episode->toApiArray());
     }
 
     public function recommendations(TvShow $tvShow): JsonResponse

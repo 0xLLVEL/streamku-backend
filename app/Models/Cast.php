@@ -23,4 +23,16 @@ class Cast extends Model
     {
         return $this->morphTo();
     }
+
+    public function toApiArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'tmdb_id' => $this->tmdb_id,
+            'name' => $this->name,
+            'character' => $this->character,
+            'profile_path' => $this->profile_path,
+            'order' => $this->order,
+        ];
+    }
 }

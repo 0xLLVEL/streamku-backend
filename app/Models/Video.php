@@ -33,4 +33,16 @@ class Video extends Model
     {
         return $this->morphTo();
     }
+
+    public function toApiArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'tmdb_id' => $this->tmdb_id,
+            'key' => $this->key,
+            'site' => $this->site,
+            'name' => $this->name,
+            'official' => $this->official ? true : false,
+        ];
+    }
 }

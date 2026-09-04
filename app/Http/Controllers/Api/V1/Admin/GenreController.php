@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
-use App\Data\GenreData;
 use App\Http\Controllers\Controller;
 use App\Models\Genre;
 use Illuminate\Http\JsonResponse;
@@ -41,12 +40,12 @@ class GenreController extends Controller
             'slug' => Str::slug($validated['name']),
         ]);
 
-        return response()->json(['data' => GenreData::from($genre)], 201);
+        return response()->json(['data' => $genre->toApiArray()], 201);
     }
 
     public function show(Genre $genre): JsonResponse
     {
-        return response()->json(['data' => GenreData::from($genre)]);
+        return response()->json(['data' => $genre->toApiArray()]);
     }
 
     public function update(Request $request, Genre $genre): JsonResponse
@@ -63,7 +62,7 @@ class GenreController extends Controller
 
         $genre->update($attributes);
 
-        return response()->json(['data' => GenreData::from($genre->fresh())]);
+        return response()->json(['data' => $genre->fresh()->toApiArray()]);
     }
 
     public function destroy(Genre $genre): JsonResponse

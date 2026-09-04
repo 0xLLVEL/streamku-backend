@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Data\WatchPartyData;
 use App\Enums\MediaType;
 use App\Events\WatchPartySynced;
 use App\Http\Controllers\Controller;
@@ -32,14 +31,14 @@ class WatchPartyController extends Controller
 
         $party->members()->attach($request->user()->id);
 
-        return $this->success(WatchPartyData::fromModel($party));
+        return $this->success($party->toApiArray());
     }
 
     public function show(WatchParty $watchParty): JsonResponse
     {
         $watchParty->load(['host', 'members', 'mediable']);
 
-        return $this->success(WatchPartyData::fromModel($watchParty));
+        return $this->success($watchParty->toApiArray());
     }
 
     public function join(Request $request, WatchParty $watchParty): JsonResponse

@@ -134,4 +134,35 @@ class TvShow extends Model
     {
         return $this->morphMany(Media::class, 'mediable');
     }
+
+    public function toApiArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'tmdb_id' => $this->tmdb_id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'overview' => $this->overview,
+            'tagline' => $this->tagline,
+            'poster_path' => $this->poster_path,
+            'backdrop_path' => $this->backdrop_path,
+            'first_air_date' => $this->first_air_date?->format('Y-m-d'),
+            'last_air_date' => $this->last_air_date?->format('Y-m-d'),
+            'number_of_seasons' => $this->number_of_seasons,
+            'number_of_episodes' => $this->number_of_episodes,
+            'episode_run_time' => $this->episode_run_time,
+            'vote_average' => $this->vote_average,
+            'vote_count' => $this->vote_count,
+            'popularity' => $this->popularity,
+            'original_language' => $this->original_language,
+            'status' => $this->status,
+            'type' => $this->type,
+            'is_featured' => $this->is_featured,
+            'genres' => $this->genres->map->toApiArray()->all(),
+            'cast' => $this->cast->filter()->map->toApiArray()->all(),
+            'videos' => $this->videos->filter()->map->toApiArray()->all(),
+            'seasons' => $this->seasons->sortBy('season_number')->map->toApiArray()->all(),
+            'images' => $this->images,
+        ];
+    }
 }
