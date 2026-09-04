@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Data\Auth\LoginData;
-use App\Data\Auth\RegisterData;
 use App\Data\Auth\UserData;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -14,14 +12,20 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function register(RegisterData $data): JsonResponse
+    public function register(Request $request): JsonResponse
     {
+        $validated = $request->validate([
+            'username' => ['required', 'string', 'min:3', 'max:30', 'regex:/^[a-zA-Z0-9_]+$/'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
         $ip = request()->ip();
 
         $user = User::create([
-            'username' => $data->username,
-            'email' => $data->email,
-            'password' => $data->password,
+            'username' => $validated['username'],
+            'email' => $validated['email'],
+            'password' => $validated['password'],
             'ip_address' => $ip,
             'country' => null, // ponytail: location lookup removed
         ]);
@@ -35,11 +39,16 @@ class AuthController extends Controller
         ], null, 201);
     }
 
-    public function login(LoginData $data): JsonResponse
+    public function login(Request $request): JsonResponse
     {
-        $user = User::where('email', $data->email)->first();
+        $validated = $request->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
 
-        if (! $user || ! Hash::check($data->password, $user->password)) {
+        $user = User::where('email', $validated['email'])->first();
+
+        if (! $user || ! Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
