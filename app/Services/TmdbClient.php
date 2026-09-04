@@ -2,11 +2,10 @@
 
 namespace App\Services;
 
-use App\Contracts\TmdbPort;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
-class TmdbClient implements TmdbPort
+class TmdbClient
 {
     private PendingRequest $http;
 

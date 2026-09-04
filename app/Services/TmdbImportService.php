@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Contracts\TmdbPort;
 use App\Models\Genre;
 use App\Models\Movie;
 use App\Models\Season;
@@ -12,7 +11,7 @@ use Illuminate\Support\Str;
 class TmdbImportService
 {
     public function __construct(
-        private TmdbPort $client,
+        private TmdbClient $client,
     ) {}
 
     public function importMovie(int $tmdbId, ?string $language = null): Movie

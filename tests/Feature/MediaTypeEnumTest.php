@@ -1,20 +1,20 @@
 <?php
 
-use App\Contracts\TmdbPort;
 use App\Enums\MediaType;
 use App\Models\Episode;
 use App\Models\Movie;
 use App\Models\TvShow;
+use App\Services\TmdbClient;
 
 test('MediaType maps strings to model classes', function () {
-    expect(MediaType::fromString('movie'))->not->toBeNull()
-        ->and(MediaType::fromString('movie')->modelClass())->toBe(Movie::class)
-        ->and(MediaType::fromString('tv_show')->modelClass())->toBe(TvShow::class)
-        ->and(MediaType::fromString('episode')->modelClass())->toBe(Episode::class);
+    expect(MediaType::tryFrom('movie'))->not->toBeNull()
+        ->and(MediaType::tryFrom('movie')->modelClass())->toBe(Movie::class)
+        ->and(MediaType::tryFrom('tv_show')->modelClass())->toBe(TvShow::class)
+        ->and(MediaType::tryFrom('episode')->modelClass())->toBe(Episode::class);
 });
 
 test('MediaType accepts only the canonical enum vocabulary', function (string $alias) {
-    expect(MediaType::fromString($alias))->toBeNull();
+    expect(MediaType::tryFrom($alias))->toBeNull();
 })->with([
     'tv' => ['tv'],
     'tv-show' => ['tv-show'],
@@ -23,9 +23,9 @@ test('MediaType accepts only the canonical enum vocabulary', function (string $a
 ]);
 
 test('MediaType rejects unknown strings', function () {
-    expect(MediaType::fromString('book'))->toBeNull();
+    expect(MediaType::tryFrom('book'))->toBeNull();
 });
 
-test('TmdbPort is bound to TmdbClient in the container', function () {
-    expect(app(TmdbPort::class))->toBeInstanceOf(TmdbPort::class);
+test('TmdbClient resolves from the container', function () {
+    expect(app(TmdbClient::class))->toBeInstanceOf(TmdbClient::class);
 });

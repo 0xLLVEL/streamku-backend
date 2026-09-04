@@ -36,7 +36,7 @@ class ChunkedUploadService
         $chunkSize = self::DEFAULT_CHUNK_SIZE;
         $totalChunks = (int) ceil($data['total_size'] / $chunkSize);
 
-        $mediaType = MediaType::fromString($data['media_type']);
+        $mediaType = MediaType::tryFrom($data['media_type']);
 
         if (! in_array($mediaType, [MediaType::Movie, MediaType::Episode], true)) {
             throw new \InvalidArgumentException('Invalid media type.');

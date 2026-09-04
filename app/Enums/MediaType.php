@@ -20,9 +20,4 @@ enum MediaType: string
             self::Episode => Episode::class,
         };
     }
-
-    public static function fromString(string $value): ?self
-    {
-        return self::tryFrom($value);
-    }
 }
