@@ -1,58 +1,89 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Streamku — API Server
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel)](https://laravel.com/)
+[![PHP](https://img.shields.io/badge/PHP-8.3+-777BB4?logo=php)](https://www.php.net/)
+[![Sanctum](https://img.shields.io/badge/Auth-Sanctum-6D28D9)](https://laravel.com/docs/sanctum)
+[![Pest](https://img.shields.io/badge/Tests-Pest-F8BC45?logo=pest)](https://pestphp.com/)
 
-## About Laravel
+ REST API for **Streamku**, a movie & TV streaming catalog. Versioned under `/api/v1`, token auth via Sanctum, SQLite by default, TMDB + OpenSubtitles integrations, chunked tus uploads, and Reverb realtime for watch parties.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+> Frontend lives in [`../client`](../client). Domain vocabulary is defined in [`CONTEXT.md`](CONTEXT.md).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Area | Endpoints |
+| ---- | --------- |
+| Auth | Register, login, logout, me, profile update |
+| Browse | `/browse`, `/search`, movies & TV lists, detail, recommendations, season/episode lookup |
+| Genres & cast | Public genre catalog, cast listing |
+| Library | Watchlist & favorites CRUD |
+| History | Progress heartbeats, continue-watching feed |
+| Social | Reviews & comments (public read, auth write), friends, activity feed |
+| Watch parties | Create, join, playback sync (Reverb realtime) |
+| Streaming | Media manifest per title/episode, file streaming, subtitles |
+| Admin | Analytics overview, movie/TV/genre/cast CRUD, TMDB search/import/preview, image upload, season/episode management, embed videos, bulk episode generation, review/comment moderation |
+| Uploads | Resumable tus endpoint for large video files |
 
-## Learning Laravel
+## Tech stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Laravel 13** + **PHP 8.3+**
+- **Sanctum** API tokens, **Eloquent API Resources**, versioned `Api\V1` controllers
+- **SQLite** default (swap via `DB_*`), database queue + cache
+- **TMDB** metadata ingestion, **OpenSubtitles** subtitles
+- **laravel-tus** uploads, **Reverb** websockets, **Pulse** monitoring
+- **Pest** tests, **Pint** formatting, **Boost** agent rules
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Prerequisites
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+- PHP 8.3+ with `sqlite` extension
+- Composer 2+
+- External keys only if you use ingestion: `TMDB_API_KEY`, `OPENSUBTITLES_API_KEY`
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Quickstart
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+composer dev        # serve :8000 + queue worker + vite
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+API base: `http://localhost:8000/api/v1`.
 
-## Contributing
+| Variable | Default | Purpose |
+| -------- | ------- | ------- |
+| `DB_CONNECTION` | `sqlite` | Database driver |
+| `TMDB_API_KEY` / `TMDB_BASE_URL` | — / `https://api.themoviedb.org/3` | Title metadata ingestion |
+| `TMDB_IMAGE_BASE_URL` | `https://image.tmdb.org/t/p` | Poster/backdrop URLs |
+| `OPENSUBTITLES_API_KEY` / `OPENSUBTITLES_BASE_URL` | — | Subtitle search |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Useful commands:
 
-## Code of Conduct
+```bash
+php artisan route:list --path=api   # inspect endpoints
+php artisan test --compact          # Pest suite
+vendor/bin/pint --dirty             # format changed PHP files
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Project structure
 
-## Security Vulnerabilities
+```
+app/Http/Controllers/Api/V1/  # versioned controllers (Auth, Browse, Movie, TvShow, Admin/*, ...)
+routes/api.php                # all /v1 routes (public, auth:sanctum, admin groups)
+config/                       # services (tmdb, opensubtitles), filesystems, queue
+database/                     # migrations, factories, seeders
+tests/                        # Pest feature + unit tests
+docs/                         # adr/, agents/
+CONTEXT.md                    # domain glossary (Movie, Season, Video, Watchlist, ...)
+PERF.md                       # performance notes
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Admin routes sit under `/admin` behind `EnsureUserIsAdmin`; public catalog reads work signed out.
 
-## License
+## Related docs
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- [`../client`](../client) — frontend setup and conventions
+- [`CONTEXT.md`](CONTEXT.md) — domain language, use these terms
+- [`PERF.md`](PERF.md) — performance notes
+- [`AGENTS.md`](AGENTS.md) — agent working rules (Boost, Pest, Pint)
