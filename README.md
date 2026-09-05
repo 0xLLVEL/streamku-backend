@@ -7,7 +7,22 @@
 
  REST API for **Streamku**, a movie & TV streaming catalog. Versioned under `/api/v1`, token auth via Sanctum, SQLite by default, TMDB + OpenSubtitles integrations, chunked tus uploads, and Reverb realtime for watch parties.
 
-> Frontend lives in [`../client`](../client). Domain vocabulary is defined in [`CONTEXT.md`](CONTEXT.md).
+> Frontend lives in [`../client`](../client).
+
+## Domain glossary
+
+Use these terms (and avoid the alternatives):
+
+| Term | Meaning | Avoid |
+| ---- | ------- | ----- |
+| Movie / TvShow / Season / Episode | Film, series, numbered season group, numbered installment (smallest playable unit) | Show, series, Actor |
+| Cast | Credited people for a title | Person, Crew |
+| Video | Playable source entry on a Movie or Episode | Source, file |
+| Media | Stored file (video, subtitle, image) with disk location, quality, size | Asset, storage |
+| Watchlist / Favorite | Save-for-later collection / explicitly liked titles | Queue, Bookmark |
+| WatchHistory | Per-title playback progress record | — |
+| Review / WatchParty / Friend | Rating + opinion / realtime group session / two-way connection | — |
+| Upload / Import | Chunked upload session / bringing a title in from an external catalog | Transfer |
 
 ## Features
 
@@ -84,6 +99,4 @@ Admin routes sit under `/admin` behind `EnsureUserIsAdmin`; public catalog reads
 ## Related docs
 
 - [`../client`](../client) — frontend setup and conventions
-- [`CONTEXT.md`](CONTEXT.md) — domain language, use these terms
-- [`PERF.md`](PERF.md) — performance notes
 - [`AGENTS.md`](AGENTS.md) — agent working rules (Boost, Pest, Pint)
